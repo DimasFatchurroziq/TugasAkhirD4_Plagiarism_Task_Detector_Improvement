@@ -1,0 +1,103 @@
+# -------------------------
+# PYTHON
+# -------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.pdb
+*.pyc
+*.pyd
+*.pyo
+*.pdb
+*.egg
+*.eggs/
+*.egg-info/
+.Python
+
+# Virtual environments
+venv/
+env/
+.venv/
+.envrc
+poetry.lock
+poetry.toml
+
+# Byte-compiled / optimized
+*.so
+
+# -------------------------
+# ENVIRONMENT & SECRET FILES
+# -------------------------
+.env
+.env.*
+!.env.example
+
+# -------------------------
+# LOGS
+# -------------------------
+logs/
+*.log
+*.out
+*.err
+
+# -------------------------
+# CACHE & TEMP FILES
+# -------------------------
+.cache/
+pytest_cache/
+.mypy_cache/
+ruff_cache/
+.dmypy.json
+.pytest_cache/
+.prof
+.coverage
+htmlcov/
+
+# -------------------------
+# BUILD ARTIFACTS
+# -------------------------
+build/
+dist/
+wheelhouse/
+
+# -------------------------
+# ALEMBIC
+# -------------------------
+alembic/versions/*.pyc
+alembic/versions/__pycache__/
+
+# -------------------------
+# DOCKER
+# -------------------------
+docker/*.tar
+docker/*.bak
+docker/*.old
+
+# Ignore all generated docker-compose override files
+docker-compose.override.yml
+
+# -------------------------
+# EDITOR FILES
+# -------------------------
+.vscode/
+.vscode/*
+.idea/
+*.swp
+*.swo
+
+# -------------------------
+# TESTS
+# -------------------------
+coverage.xml
+.coverage.*
+.junit.xml
+
+# -------------------------
+# PROJECT GENERATED FILES
+# -------------------------
+uploads/
+temp/
+tmp/
+data/
