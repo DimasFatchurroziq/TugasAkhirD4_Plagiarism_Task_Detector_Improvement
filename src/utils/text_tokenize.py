@@ -2,6 +2,12 @@ import spacy
 
 nlp = spacy.blank("en")
 
+def tokenize_character(word_tokens):
+    character_tokens = []
+    for word in word_tokens:
+        character_tokens.extend(list(word))
+    return character_tokens
+
 def tokenize_word(text):
     doc = nlp(text)
     word_tokens = [token.text for token in doc]
