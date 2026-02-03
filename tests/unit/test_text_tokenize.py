@@ -11,6 +11,6 @@ def test_tokenize_sentence():
     assert result == ['Presiden datang.', 'Prof. Budi menyambut.']
 
 def test_tokenize_charachter():
-    word_tokens = ['Indonesia', 'adalah', ' ', '.']
+    word_tokens = ['Indonesia ', 'adalah', ' ', '.']
     result = tokenize_character(word_tokens)
-    assert result == ['I', 'n', 'd', 'o', 'n', 'e', 's', 'i', 'a', 'a', 'd', 'a', 'l', 'a', 'h', ' ', '.']
+    assert result == ['I', 'n', 'd', 'o', 'n', 'e', 's', 'i', 'a', ' ', 'a', 'd', 'a', 'l', 'a', 'h', ' ', '.']

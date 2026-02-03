@@ -1,0 +1,162 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  # --- DATABASE (PostgreSQL) ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: similarity_postgres
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- MESSAGE BROKER (Redis) ---
+  redis:
+    image: redis:7-alpine
+    container_name: similarity_redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- BACKEND API (FastAPI) ---
+  backend:
+    build: ./docker/fastapi 
+    container_name: similarity_backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - uploads:/app/uploads
+      - temp:/app/temp
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # --- CELERY WORKER 1 (PDF & OCR) ---
+  # Fokus pada tugas berat I/O dan Memori
+  worker_ocr:
+    build: ./backend
+    container_name: similarity_worker_ocr
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=2 --queues=pdf,ocr
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - uploads:/app/uploads
+      - temp:/app/temp
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - app-network
+
+  # --- CELERY WORKER 2 (Processing) ---
+  # Fokus pada manipulasi teks dan kode
+  worker_processing:
+    build: ./backend
+    container_name: similarity_worker_processing
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=2 --queues=processing
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - uploads:/app/uploads
+      - temp:/app/temp
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  # --- CELERY WORKER 3 (Similarity) ---
+  # Fokus pada komputasi CPU (GST Algorithm)
+  worker_similarity:
+    build: ./backend
+    container_name: similarity_worker_similarity
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=1 --queues=similarity
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  # --- CELERY BEAT (Scheduler) ---
+  celery-beat:
+    build: ./backend
+    container_name: similarity_celery_beat
+    command: celery -A app.celery_app beat --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  # --- FLOWER (Monitoring) ---
+  flower:
+    build: ./docker/flower
+    container_name: similarity_flower
+    command: celery -A app.celery_app flower --port=5555
+    ports:
+      - "5555:5555"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  # --- FRONTEND (React) ---
+  # frontend:
+  #   build: ./frontend
+  #   container_name: similarity_frontend
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads:
+  temp:
+
+networks:
+  app-network:
+    driver: bridge

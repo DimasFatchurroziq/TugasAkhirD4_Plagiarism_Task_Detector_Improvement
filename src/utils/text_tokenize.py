@@ -1,6 +1,7 @@
 import spacy
 
 nlp = spacy.blank("en")
+nlp.add_pipe('sentencizer')
 
 def tokenize_character(word_tokens):
     character_tokens = []
@@ -14,7 +15,6 @@ def tokenize_word(text):
     return word_tokens
 
 def tokenize_sentence(text):
-    nlp.add_pipe('sentencizer')
     doc = nlp(text)
     sentence_tokens = [sent.text for sent in doc.sents]
     return sentence_tokens
