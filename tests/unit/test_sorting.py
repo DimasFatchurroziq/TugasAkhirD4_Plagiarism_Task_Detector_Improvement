@@ -1,80 +1,276 @@
 from src.utils.sorting import timsort
-
 import pytest
-import timeit
-import bisect
-import random
 
-def timsort(fingerprint_list):
-    fingerprint_list.sort()
-    return fingerprint_list
+def test_sort_by_first_index():
+    data = [
+        [3, "c"],
+        [1, "a"],
+        [2, "b"]
+    ]
+    result = timsort(data, 0)
+    expected = [
+        [1, "a"],
+        [2, "b"],
+        [3, "c"]
+    ]
+    assert result == expected
 
-def test_timsort_random_data():
-    """Menguji data acak normal"""
-    input_data = [38, 27, 43, 3, 9, 82, 10]
-    expected = [3, 9, 10, 27, 38, 43, 82]
-    assert timsort(input_data) == expected
 
-def test_timsort_already_sorted():
-    """Menguji data yang sudah urut"""
-    input_data = [1, 2, 3, 4, 5]
-    expected = [1, 2, 3, 4, 5]
-    assert timsort(input_data) == expected
+def test_sort_by_second_index():
+    data = [
+        [1, "c"],
+        [2, "a"],
+        [3, "b"]
+    ]
+    result = timsort(data, 1)
+    expected = [
+        [2, "a"],
+        [3, "b"],
+        [1, "c"]
+    ]
+    assert result == expected
 
-def test_timsort_reverse_sorted():
-    """Menguji data yang urut terbalik"""
-    input_data = [5, 4, 3, 2, 1]
-    expected = [1, 2, 3, 4, 5]
-    assert timsort(input_data) == expected
 
-def test_timsort_empty_list():
-    """Menguji list kosong"""
-    input_data = []
-    expected = []
-    assert timsort(input_data) == expected
+def test_sort_with_duplicate_values():
+    data = [
+        [1, "b"],
+        [2, "a"],
+        [3, "a"]
+    ]
+    result = timsort(data, 1)
+    expected = [
+        [2, "a"],
+        [3, "a"],
+        [1, "b"]
+    ]
+    assert result == expected
 
-def test_timsort_with_duplicates():
-    """Menguji data dengan angka duplikat"""
-    input_data = [5, 1, 3, 5, 2, 1]
-    expected = [1, 1, 2, 3, 5, 5]
-    assert timsort(input_data) == expected
 
-def test_timsort_single_element():
-    """Menguji list dengan hanya satu elemen"""
-    input_data = [10]
-    expected = [10]
-    assert timsort(input_data) == expected# Fungsi Timsort kita
-    
-def timsort_func(data):
-    data.sort()
-    return data
+def test_empty_list():
+    data = []
+    result = timsort(data, 0)
+    assert result == []
 
-def test_benchmark_performance():
-    # 1. Siapkan 10.000 data acak
-    data_besar = [random.randint(1, 100000) for _ in range(10000)]
-    
-    # 2. Benchmark SORTING (Timsort)
-    # Kita ukur berapa lama mengurutkan 10.000 data
-    start_sort = timeit.default_timer()
-    data_urut = timsort_func(data_besar)
-    end_sort = timeit.default_timer()
-    
-    time_sort = (end_sort - start_sort) * 1000 # konversi ke milidetik
-    
-    # 3. Benchmark SEARCHING (Binary Search) sebanyak 1.000 kali
-    targets = [random.randint(1, 100000) for _ in range(1000)]
-    
-    start_search = timeit.default_timer()
-    for t in targets:
-        bisect.bisect_left(data_urut, t)
-    end_search = timeit.default_timer()
-    
-    time_search = (end_search - start_search) * 1000 # konversi ke milidetik
 
-    print(f"\n--- HASIL BENCHMARK (10.000 DATA) ---")
-    print(f"Waktu Sorting (Timsort)      : {time_sort:.4f} ms")
-    print(f"Waktu Searching (1.000 kali) : {time_search:.4f} ms")
-    
-    # Assertion sederhana untuk memastikan proses berjalan
-    assert len(data_urut) == 10000
+def test_single_element():
+    data = [[1, "a"]]
+    result = timsort(data, 0)
+    assert result == [[1, "a"]]
 
+def test_sort_by_id():
+    data = [
+        [3, "Charlie", 88],
+        [1, "Alice", 90],
+        [2, "Bob", 85],
+    ]
+
+    result = timsort(data, 0)
+
+    expected = [
+        [1, "Alice", 90],
+        [2, "Bob", 85],
+        [3, "Charlie", 88],
+    ]
+
+    assert result == expected
+
+
+def test_sort_by_name():
+    data = [
+        [1, "Charlie", 88],
+        [2, "Alice", 90],
+        [3, "Bob", 85],
+    ]
+
+    result = timsort(data, 1)
+
+    expected = [
+        [2, "Alice", 90],
+        [3, "Bob", 85],
+        [1, "Charlie", 88],
+    ]
+
+    assert result == expected
+
+
+def test_sort_by_score():
+    data = [
+        [1, "Alice", 90],
+        [2, "Bob", 85],
+        [3, "Charlie", 88],
+    ]
+
+    result = timsort(data, 2)
+
+    expected = [
+        [2, "Bob", 85],
+        [3, "Charlie", 88],
+        [1, "Alice", 90],
+    ]
+
+    assert result == expected
+
+def test_sort_four_elements():
+    data = [
+        [1, "A", 90, "active"],
+        [2, "B", 85, "inactive"],
+        [3, "C", 88, "active"],
+    ]
+
+    result = timsort(data, 3)
+
+    expected = [
+        [1, "A", 90, "active"],
+        [3, "C", 88, "active"],
+        [2, "B", 85, "inactive"],
+    ]
+
+    assert result == expected
+
+def test_sort_by_hash_value():
+    data = [
+        [0, 2266],
+        [1, 2332],
+        [2, 2340],
+        [5, 2320],
+        [7, 2290],
+        [8, 2098],
+        [11, 2095],
+    ]
+
+    result = timsort(data, 1)
+
+    expected = [
+        [11, 2095],
+        [8, 2098],
+        [0, 2266],
+        [7, 2290],
+        [5, 2320],
+        [1, 2332],
+        [2, 2340],
+    ]
+
+    assert result == expected
+
+
+def test_sort_by_index():
+    data = [
+        [5, 2320],
+        [0, 2266],
+        [11, 2095],
+        [2, 2340],
+    ]
+
+    result = timsort(data, 0)
+
+    expected = [
+        [0, 2266],
+        [2, 2340],
+        [5, 2320],
+        [11, 2095],
+    ]
+
+    assert result == expected
+
+def test_sort_with_duplicate_hash():
+    data = [
+        [0, 100],
+        [1, 100],
+        [2, 90],
+    ]
+
+    result = timsort(data, 1)
+
+    expected = [
+        [2, 90],
+        [0, 100],
+        [1, 100],
+    ]
+
+    assert result == expected
+
+def test_sort_by_hash():
+    data = [
+        [0, 2266, 0.91, 1700000001],
+        [1, 2332, 0.88, 1700000002],
+        [2, 2340, 0.95, 1700000003],
+        [5, 2320, 0.89, 1700000004],
+        [7, 2290, 0.92, 1700000005],
+    ]
+
+    result = timsort(data, 1)
+
+    expected = [
+        [0, 2266, 0.91, 1700000001],
+        [7, 2290, 0.92, 1700000005],
+        [5, 2320, 0.89, 1700000004],
+        [1, 2332, 0.88, 1700000002],
+        [2, 2340, 0.95, 1700000003],
+    ]
+
+    assert result == expected
+
+
+def test_sort_by_score():
+    data = [
+        [0, 2266, 0.91, 1700000001],
+        [1, 2332, 0.88, 1700000002],
+        [2, 2340, 0.95, 1700000003],
+        [5, 2320, 0.89, 1700000004],
+    ]
+
+    result = timsort(data, 2)
+
+    expected = [
+        [1, 2332, 0.88, 1700000002],
+        [5, 2320, 0.89, 1700000004],
+        [0, 2266, 0.91, 1700000001],
+        [2, 2340, 0.95, 1700000003],
+    ]
+
+    assert result == expected
+
+
+def test_sort_by_timestamp():
+    data = [
+        [2, 2340, 0.95, 1700000003],
+        [0, 2266, 0.91, 1700000001],
+        [1, 2332, 0.88, 1700000002],
+    ]
+
+    result = timsort(data, 3)
+
+    expected = [
+        [0, 2266, 0.91, 1700000001],
+        [1, 2332, 0.88, 1700000002],
+        [2, 2340, 0.95, 1700000003],
+    ]
+
+    assert result == expected
+
+@pytest.mark.parametrize(
+    "n,expected",
+    [
+        (0, [
+            [0, 2266, 0.91, 1700000001],
+            [1, 2332, 0.88, 1700000002],
+            [2, 2340, 0.95, 1700000003],
+            [5, 2320, 0.89, 1700000004],
+        ]),
+        (1, [
+            [0, 2266, 0.91, 1700000001],
+            [5, 2320, 0.89, 1700000004],
+            [1, 2332, 0.88, 1700000002],
+            [2, 2340, 0.95, 1700000003],
+        ]),
+    ],
+)
+def test_sort_parametrized(n, expected):
+    data = [
+        [5, 2320, 0.89, 1700000004],
+        [0, 2266, 0.91, 1700000001],
+        [1, 2332, 0.88, 1700000002],
+        [2, 2340, 0.95, 1700000003],
+    ]
+
+    assert timsort(data, n) == expected

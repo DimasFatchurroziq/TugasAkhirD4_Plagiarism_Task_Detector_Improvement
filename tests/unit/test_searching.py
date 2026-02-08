@@ -12,7 +12,7 @@ def test_binary_search_find_match():
     hasil = binary_search(sorted_list, target, index)
     
     # Ekspektasi: [7 (index target), 0 (index hasil), 1838 (nilai hasil)]
-    assert hasil == [7, 0, 1838]
+    assert hasil == [[7, 0, 1838]]
 
 def test_binary_search_not_found():
     """Menguji jika data tidak ditemukan dalam list"""
@@ -21,7 +21,7 @@ def test_binary_search_not_found():
     index = 1
     
     hasil = binary_search(sorted_list, target, index)
-    assert hasil is None
+    assert hasil == []
 
 def test_binary_search_duplicate_logic():
     """Menguji perilaku fungsi saat ada data duplikat"""
@@ -33,4 +33,4 @@ def test_binary_search_duplicate_logic():
     
     hasil = binary_search(sorted_list, target, index)
     # Harus mengembalikan elemen pertama yang cocok dari slice 'matched'
-    assert hasil == [9, 0, 100]
+    assert hasil == [[9, 0, 100], [9, 1, 100], [9, 2, 100]]
