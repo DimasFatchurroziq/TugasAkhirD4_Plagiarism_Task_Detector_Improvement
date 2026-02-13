@@ -52,52 +52,112 @@
 
 
 
-def greedy_string_tiling(text_a, text_b, min_match_len=3):
-    tiles = []
-    max_match = min_match_len + 1
+# def greedy_string_tiling(text_a, text_b, min_match_len=3):
+#     tiles = []
+#     max_match = min_match_len + 1
     
-    # Penanda untuk karakter yang sudah dipakai
-    marked_a = [False] * len(text_a)
-    marked_b = [False] * len(text_b)
+#     # Penanda untuk karakter yang sudah dipakai
+#     marked_a = [False] * len(text_a)
+#     marked_b = [False] * len(text_b)
 
-    while max_match > min_match_len:
-        max_match = min_match_len
-        matches = []
+#     while max_match > min_match_len:
+#         max_match = min_match_len
+#         matches = []
 
-        # Cari kecocokan terpanjang yang tersedia
-        for i in range(len(text_a)):
-            for j in range(len(text_b)):
-                k = 0
-                # Hitung panjang kecocokan selama karakter sama dan belum ditandai
-                while (i + k < len(text_a) and j + k < len(text_b) and
-                       text_a[i + k] == text_b[j + k] and
-                       not marked_a[i + k] and not marked_b[j + k]):
-                    k += 1
+#         # Cari kecocokan terpanjang yang tersedia
+#         for i in range(len(text_a)):
+#             for j in range(len(text_b)):
+#                 k = 0
+#                 # Hitung panjang kecocokan selama karakter sama dan belum ditandai
+#                 while (i + k < len(text_a) and j + k < len(text_b) and
+#                        text_a[i + k] == text_b[j + k] and
+#                        not marked_a[i + k] and not marked_b[j + k]):
+#                     k += 1
                 
-                if k > max_match:
-                    max_match = k
-                    matches = [(i, j, k)]
-                elif k == max_match and k > min_match_len:
-                    matches.append((i, j, k))
+#                 if k > max_match:
+#                     max_match = k
+#                     matches = [(i, j, k)]
+#                 elif k == max_match and k > min_match_len:
+#                     matches.append((i, j, k))
 
-        # Tandai (Marking) kecocokan yang ditemukan
-        for i, j, k in matches:
-            # Cek ulang apakah masih bisa ditandai (menghindari tumpang tindih)
-            if not any(marked_a[i + x] for x in range(k)) and \
-               not any(marked_b[j + x] for x in range(k)):
-                for x in range(k):
-                    marked_a[i + x] = True
-                    marked_b[j + x] = True
-                tiles.append((i, j, k))
+#         # Tandai (Marking) kecocokan yang ditemukan
+#         for i, j, k in matches:
+#             # Cek ulang apakah masih bisa ditandai (menghindari tumpang tindih)
+#             if not any(marked_a[i + x] for x in range(k)) and \
+#                not any(marked_b[j + x] for x in range(k)):
+#                 for x in range(k):
+#                     marked_a[i + x] = True
+#                     marked_b[j + x] = True
+#                 tiles.append((i, j, k))
 
-    return tiles
+#     return tiles
 
-# Contoh Penggunaan:
-a = "algoritma greedy string tiling"
-# a = "abcdefghij strin"
-b = "string tiling menggunakan algoritma greedy"
-hasil = greedy_string_tiling(a, b, 5)
+# # Contoh Penggunaan:
+# a = "algoritma greedy string tiling"
+# # a = "abcdefghij strin"
+# b = "string tiling menggunakan algoritma greedy"
+# hasil = greedy_string_tiling(a, b, 5)
 
-print(f"Tiles ditemukan: {hasil}")
-# Output akan menunjukkan posisi dan panjang blok 'algoritma greedy' dan 'string tiling'
+# print(f"Tiles ditemukan: {hasil}")
+# # Output akan menunjukkan posisi dan panjang blok 'algoritma greedy' dan 'string tiling'
 
+def fingerprint_generate(window_list):
+    fingerprint_list = []
+
+    window_length = len(window_list[0])
+    window_length_min_1 = window_length - 1
+
+    for i in range(len(window_list)):
+
+        if i > 0:
+            # cek jarak index
+            if (window_list[i][window_length_min_1][0] - fingerprint_list[index_list][0]) < window_length:
+                smallest_hash = fingerprint_list[index_list]
+
+                # bandingkan dengan elemen terakhir window
+                last_element = window_list[i][window_length_min_1]
+                if (
+                    last_element[1] < smallest_hash[1] or
+                    (last_element[1] == smallest_hash[1] and last_element[0] > smallest_hash[0])
+                ):
+                    smallest_hash = last_element
+                    fingerprint_list.append(smallest_hash)
+                    index_list += 1
+
+            else:
+                smallest_hash = window_list[i][0]
+                for x in range(1, window_length):
+                    if (
+                        window_list[i][x][1] < smallest_hash[1] or
+                        (window_list[i][x][1] == smallest_hash[1] and
+                         window_list[i][x][0] > smallest_hash[0])
+                    ):
+                        smallest_hash = window_list[i][x]
+
+                fingerprint_list.append(smallest_hash)
+                index_list += 1
+
+        else:
+            smallest_hash = window_list[i][0]
+            for x in range(1, window_length):
+                if (
+                    window_list[i][x][1] < smallest_hash[1] or
+                    (window_list[i][x][1] == smallest_hash[1] and
+                     window_list[i][x][0] > smallest_hash[0])
+                ):
+                    smallest_hash = window_list[i][x]
+
+            fingerprint_list.append(smallest_hash)
+            index_list = 0
+
+    return fingerprint_list
+
+if __name__ == "__main__":
+   
+    window_list = [
+        [[0, 4000], [1, 3500], [2, 3600], [3, 3400], [4, 3800]],
+        [[1, 3500], [2, 3600], [3, 3400], [4, 3800], [5, 3300]],
+        [[2, 3600], [3, 3400], [4, 3800], [5, 3300], [6, 3700]],
+    ]
+    hasil = fingerprint_generate(window_list)
+    print(hasil)

@@ -14,14 +14,14 @@ def binary_search(sorted_list, target, index):
 
 
 if __name__ == "__main__":
-    sorted_list =[[0, 10], [1, 10], [2, 10]]
+    sorted_list =[[0, 9], [1, 10], [2, 10]]
     target = [[9, 10], [11,11]]
     index = 1
 
     result = []
     for item in target:
         sapi = binary_search(sorted_list, item, index)
-        print(sapi)
+        # print(sapi)
         if sapi:
             result.extend(sapi)
 

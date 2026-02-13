@@ -6,12 +6,11 @@ class MatchingService:
     #     self.repository_rollinghash = repository_rollinghash
 
     def matching(self, fingerprint_list_1, fingerprint_list_2):
-        sort_fingerprint_1 = timsort(fingerprint_list_1, 1)
         sort_fingerprint_2 = timsort(fingerprint_list_2, 1)
         
         result = []
-        for item in sort_fingerprint_1:
-            sapi = binary_search(sort_fingerprint_2, item, 1)
-            result.extend(sapi)
+        for item in fingerprint_list_1:
+            sort_matched_list = binary_search(sort_fingerprint_2, item, 1)
+            result.extend(sort_matched_list)
 
         return result
