@@ -1,4 +1,4 @@
-from src.utils.fingerprint_generate import fingerprint_generate
+from src.infrastructures.winnowing.fingerprint_generate import fingerprint_generate
 
 def test_generate_fingerprint_window_4():
     window_list = [

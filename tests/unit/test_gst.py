@@ -1,4 +1,4 @@
-from src.utils.gst import greedy_string_tiling
+from src.infrastructures.rkr_gst.gst import greedy_string_tiling
 
 def test_gst_basic_case():
     """Menguji data yang kamu berikan sebelumnya"""

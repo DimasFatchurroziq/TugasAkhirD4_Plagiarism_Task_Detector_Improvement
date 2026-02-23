@@ -1,4 +1,4 @@
-from src.utils.case_transform import change_to_lowercase, change_to_uppercase
+from src.infrastructures.preprocessing.case_transform import change_to_lowercase, change_to_uppercase
 
 #lower case
 def test_change_to_lowercase_basic():

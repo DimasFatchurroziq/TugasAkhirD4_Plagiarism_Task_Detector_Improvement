@@ -1,4 +1,4 @@
-from src.utils.text_tokenize import tokenize_word, tokenize_sentence, tokenize_character
+from src.infrastructures.preprocessing.text_tokenize import tokenize_word, tokenize_sentence, tokenize_character
 
 #Tokenisasi kalimat
 def test_tokenize_sentence_basic():

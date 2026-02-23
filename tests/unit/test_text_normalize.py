@@ -1,24 +1,24 @@
-from src.utils.text_normalize import remove_special_charachter
+from src.infrastructures.preprocessing.text_normalize import remove_special_character
 
 def test_remove_special_character_basic():
     text = "AI Generator!!!"
-    assert remove_special_charachter(text) == "AI Generator"
+    assert remove_special_character(text) == "AI Generator"
 
 def test_remove_special_character_mixed():
     text = "AI@2024#Generator$%^"
-    assert remove_special_charachter(text) == "AI2024Generator"
+    assert remove_special_character(text) == "AI2024Generator"
 
 def test_remove_special_character_with_spaces():
     text = "Hello,   World!!!"
-    assert remove_special_charachter(text) == "Hello   World"
+    assert remove_special_character(text) == "Hello   World"
 
 def test_remove_special_character_newline_tab():
     text = "Hello\nWorld\tAI!!!"
-    assert remove_special_charachter(text) == "Hello\nWorld\tAI"
+    assert remove_special_character(text) == "Hello\nWorld\tAI"
 
 def test_remove_special_character_only_special():
     text = "!@#$%^&*()_+=-"
-    assert remove_special_charachter(text) == ""
+    assert remove_special_character(text) == ""
 
 def test_remove_special_character_long_text():
     text = (
@@ -31,4 +31,4 @@ def test_remove_special_character_long_text():
         "In 2024 companies use AI for dataanalysis automation  decisionmaking"
     )
 
-    assert remove_special_charachter(text) == expected
+    assert remove_special_character(text) == expected

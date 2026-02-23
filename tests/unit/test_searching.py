@@ -1,4 +1,4 @@
-from src.utils.searching import binary_search
+from src.infrastructures.rkr_gst.searching import binary_search
 
 def test_binary_search_find_match():
     """Menguji pencarian jika data ditemukan"""
