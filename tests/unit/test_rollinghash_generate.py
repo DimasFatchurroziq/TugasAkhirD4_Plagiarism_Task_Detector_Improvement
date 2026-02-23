@@ -1,4 +1,4 @@
-from src.infrastructures.rolling_hash.rollinghash_generate import rollinghash_text
+from src.infrastructures.rollinghash.rollinghash_generate import rollinghash_text
 
 #teks biasa
 def test_rollinghash_text():

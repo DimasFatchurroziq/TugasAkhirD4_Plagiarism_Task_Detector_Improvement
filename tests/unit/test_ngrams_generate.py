@@ -1,4 +1,4 @@
-from src.infrastructures.rolling_hash.ngrams_generate import generate_ngrams
+from src.infrastructures.rollinghash.ngrams_generate import generate_ngrams
 import pytest
 
 #teks biasa
