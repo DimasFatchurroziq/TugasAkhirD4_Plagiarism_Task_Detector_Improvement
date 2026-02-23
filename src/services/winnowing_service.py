@@ -1,6 +1,6 @@
 from utils.index_generate import generate_index
-from utils.ngrams_generate import generate_ngrams
-from utils.fingerprint_generate import fingerprint_generate
+from infrastructures.rollinghash.ngrams_generate import generate_ngrams
+from infrastructures.winnowing.fingerprint_generate import fingerprint_generate
 
 class WinnowingService:
     # def __init__(self, repository_winnowing):
@@ -11,6 +11,8 @@ class WinnowingService:
 
         window_list = generate_ngrams(indexing_list, n=4)
         fingerprint_list = fingerprint_generate(window_list)
+
+        # print(window_list)
 
         return fingerprint_list
 

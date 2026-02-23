@@ -1,5 +1,5 @@
 from utils.sorting import timsort
-from utils.gst import greedy_string_tiling
+from infrastructures.rkr_gst.gst import greedy_string_tiling
 
 class GstService:
     def __init__(self, gst_repository):
@@ -8,5 +8,7 @@ class GstService:
     def gst(self, sort_matched_list, rollinghash_list_1, rollinghash_list_2, min_match_len):
 
         tiles_list, length_1, length_2 = greedy_string_tiling(sort_matched_list, rollinghash_list_1, rollinghash_list_2, min_match_len)
+
+        # print(tiles_list)
 
         return tiles_list, length_1, length_2

@@ -1,6 +1,6 @@
-from utils.case_transform import change_to_lowercase, change_to_uppercase
-from utils.text_normalize import remove_special_character
-from utils.text_tokenize import tokenize_word, tokenize_sentence, tokenize_character
+from infrastructures.preprocessing.case_transform import change_to_lowercase, change_to_uppercase
+from infrastructures.preprocessing.text_normalize import remove_special_character
+from infrastructures.preprocessing.text_tokenize import tokenize_word, tokenize_sentence, tokenize_character
 
 class PreprocessingService:
     def __init__(self, file_repository):
@@ -10,13 +10,13 @@ class PreprocessingService:
         lower_text = change_to_lowercase(text)
         clean_text = remove_special_character(lower_text)
         
-        sentence_tokens = tokenize_sentence(lower_text)
+        sentence_tokens = tokenize_sentence(clean_text)
         word_tokens = tokenize_word(clean_text)
         character_tokens = tokenize_character(word_tokens)
         
-        # print(word_tokens)
-        
-        # print(character_tokens)
+        # print(len(character_tokens))
+        # result = re.sub(r"\n", " ", lower_text)
+        # print(sentence_tokens)
 
         ############ ini nanti diubah ya, hehe
         # words = await self.hash_repository.create(word_tokens)
@@ -32,7 +32,7 @@ class PreprocessingService:
         word_tokens = tokenize_word(upper_text)
         character_tokens = tokenize_character(word_tokens)
         
-        # print(character_tokens)
+        # print(upper_text)
 
         ############ ini nanti diubah ya, hehe
         # words = await self.hash_repository.create(word_tokens)
