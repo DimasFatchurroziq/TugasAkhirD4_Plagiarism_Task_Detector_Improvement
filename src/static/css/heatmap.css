@@ -1,0 +1,129 @@
+/* static/css/heatmap.css */
+
+/* ── View panel utility ───────────────────────────────────────── */
+.view-panel { display: block; }
+.view-panel.hidden { display: none; }
+
+/* ── Legend ───────────────────────────────────────────────────── */
+.hm-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
+.hm-legend-bar {
+  flex: 1;
+  height: 12px;
+  border-radius: 99px;
+  border: 0.5px solid var(--gray-200);
+  /* diisi oleh JS sesuai palette */
+}
+
+.hm-legend-ticks {
+  position: absolute;
+  left: calc(10px + 2ch);   /* setelah label "0%" */
+  right: calc(10px + 3ch);  /* sebelum label "100%" */
+  bottom: -18px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--gray-500);
+  pointer-events: none;
+}
+
+/* ── Scroll wrapper ───────────────────────────────────────────── */
+.hm-scroll-wrap {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 640px;
+  border: 0.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  /* custom scrollbar */
+}
+
+.hm-scroll-wrap::-webkit-scrollbar { width: 5px; height: 5px; }
+.hm-scroll-wrap::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 99px; }
+
+/* ── Canvas container ─────────────────────────────────────────── */
+.hm-container {
+  position: relative;
+  display: inline-block; /* shrink-wrap canvas */
+  min-width: 100%;
+}
+
+/* ── Tooltip ──────────────────────────────────────────────────── */
+.hm-tooltip {
+  position: absolute;
+  background: var(--gray-900);
+  color: #fff;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  line-height: 1.6;
+  max-width: 220px;
+  white-space: normal;
+}
+
+.hm-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom: none;
+  border-top-color: var(--gray-900);
+}
+
+.hm-tooltip-sim {
+  font-size: 18px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+/* ── Summary strip ─────────────────────────────────────────────── */
+.hm-summary {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray-100);
+}
+
+.hm-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--gray-50);
+  border: 0.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  min-width: 120px;
+}
+
+.hm-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--gray-500);
+}
+
+.hm-stat-value {
+  font-size: 22px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  line-height: 1;
+}
+
+.hm-stat-value.red   { color: var(--red-fg); }
+.hm-stat-value.amber { color: var(--amber-fg); }
+.hm-stat-value.green { color: var(--green-dark); }

@@ -1,0 +1,176 @@
+{# templates/partials/job_detail_modal.html #}
+
+<div class="modal-overlay open detail-job-modal-overlay" id="job-modal" onclick="closeModalOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Detail Job</span>
+      <button class="icon-btn" onclick="closeJobDetailModal(this)">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+
+      {# File pair header #}
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 14px; font-weight: 600; color: var(--gray-600); margin-left: 14px;">
+          {{ job.name }}
+        </span>
+        <span style="font-size: 11.5px; color: var(--gray-700); margin-right: 14px;">
+          12 Mei 2026 • 14:32
+        </span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:14px;
+                  background:var(--gray-50);border-radius:var(--radius-md);
+                  border:1px solid var(--gray-200);">
+        <span class="self-file-chip" style="overflow-wrap:break-word;word-break:break-word;">
+          {% if job.detau != none %}
+            Sekarang saya bisa jawab dengan akurat berdasarkan kode yang benar-benar ada. Berikut yang sudah dioptimasi dan yang belum:
+          {% else %}
+            -
+          {% endif %}
+        </span>
+        <!-- <i class="ti ti-arrows-exchange" style="color:var(--gray-400);font-size:18px;"></i> -->
+        <!-- <span class="file-chip">{{ pair.document_2.name }}</span> -->
+      </div>
+
+      {# Stats #}
+      <div class="stats-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="stat-card self-pointer" style="padding:14px;">
+          <div class="stat-label">Jumlah File</div>
+          <div class="stat-value" style="font-size:36px; color: var(--gray-600)">
+            42
+          </div>
+        </div>
+        <div class="stat-card self-pointer" style="padding:14px;">
+          <div class="stat-label">Jumlah Analisis</div>
+          <div class="stat-value" style="font-size:36px; color: var(--gray-600);">
+            800
+          </div>
+          <!-- <div style="margin-top:8px;">
+            <span class="badge badge-{{ var_sim_class }}" style="font-size:13px;">
+              800
+            </span>
+          </div> -->
+        </div>
+      </div>
+
+      {# Rincian #}
+      <div class="stats-grid" style="grid-template-columns:4fr 3fr;">
+        <div style="margin-top:1rem;">
+          <div class="form-label" style="margin:0 0 6px 6px;">Scenario</div>
+          <div style="padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);
+                      border:1px solid var(--gray-200);font-size:13px;color:var(--gray-700);">
+            Multiple Detection
+          </div>
+        </div>
+        <div style="margin-top:1rem;">
+          <div class="form-label" style="margin:0 0 6px 6px;">Threshold</div>
+          <div style="padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);
+                      border:1px solid var(--gray-200);font-size:13px;color:var(--gray-700);">
+            70%
+          </div>
+        </div>
+      </div>
+
+      {# Rincian #}
+      <div class="stats-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div style="margin-top:0.5rem;">
+          <div class="form-label" style="margin:0 0 6px 6px;">Bobot Teks</div>
+          <div style="padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);
+                      border:1px solid var(--gray-200);font-size:13px;color:var(--gray-700);">
+            30%
+          </div>
+        </div>
+        <div style="margin-top:0.5rem;">
+          <div class="form-label" style="margin:0 0 6px 6px;">Bobot Code</div>
+          <div style="padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);
+                      border:1px solid var(--gray-200);font-size:13px;color:var(--gray-700);">
+            60%
+          </div>
+        </div>
+        <div style="margin-top:0.5rem;">
+          <div class="form-label" style="margin:0 0 6px 6px;">Bobot Phrase</div>
+          <div style="padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);
+                      border:1px solid var(--gray-200);font-size:13px;color:var(--gray-700);">
+            10%
+          </div>
+        </div>
+      </div>
+
+
+      <!-- <div class="form-label" style="margin-bottom:6px;">Detail</div> -->
+      <!-- <div class="stats-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="stat-card" style="padding:14px;">
+          <div class="stat-label">Text</div>
+          <div class="stat-value {{ text_score | sim_class | sim_stat_class }}" style="font-size:36px;">
+            {{ text_score | int }}%
+          </div>
+        </div>
+        <div class="stat-card" style="padding:14px;">
+          <div class="stat-label">Code</div>
+          <div class="stat-value {{ code_score | sim_class | sim_stat_class }}" style="font-size:36px;">
+            {{ code_score | int }}%
+          </div>
+        </div>
+        <div class="stat-card" style="padding:14px;">
+          <div class="stat-label">Phrase</div>
+          <div class="stat-value {{ phrase_score | sim_class | sim_stat_class }}" style="font-size:36px;">
+            {{ phrase_score | int }}%
+          </div>
+        </div>
+      </div> -->
+
+
+
+
+
+
+
+
+
+
+
+
+      {# Note #}
+      <!-- <div style="margin-top:1rem;">
+        <div class="form-label" style="margin-bottom:6px;">Keterangan</div>
+        <div style="padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);
+                    border:1px solid var(--gray-200);font-size:13px;color:var(--gray-700);">
+          hehe
+        </div>
+      </div> -->
+
+      {# Progress bar #}
+      <div style="margin-top:1rem;">
+        <div class="job-progress-wrap" style="margin-bottom:10px;">
+          <div class="job-progress-label">
+            <span class="badge badge-run" style="padding: 6px 15px; font-size: 12px;">
+            <i class="ti ti-clock"></i>
+            Berjalan
+          </span>
+          <span style="color: var(--gray-700); font-weight: 900; font-size: 12px; padding-top: 10px;">40%</span>
+          </div>
+          
+        </div>
+        <div class="progress-bar" style="height:10px;">
+          <div class="progress-fill {{ '' if var_sim_class == 'low' else var_sim_class }}"
+               style="width:{{ score }}%;height:100%;
+                      background:{% if var_sim_class == 'high' %}var(--red-mid)
+                                 {% elif var_sim_class == 'med' %}var(--amber-mid)
+                                 {% else %}var(--green){% endif %};
+                      border-radius:99px;">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary"
+              onclick="document.getElementById('job-modal').remove()">Edit</button>
+      <button class="btn btn-danger btn-sm"
+              onclick="showToast('Dilaporkan sebagai plagiat','ti-flag')">
+        <i class="ti ti-flag"></i> Delete
+      </button>
+    </div>
+  </div>
+</div>

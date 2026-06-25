@@ -1,0 +1,346 @@
+{# templates/pages/results.html #}
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Hasil Analisis</h1>
+    <p class="page-sub">{{ job.name if job else "Pilih job" }}</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <label class="form-label" style="margin:0;white-space:nowrap;">Job aktif:</label>
+    <select class="form-select" id="results-job-filter"
+            onchange="window.location='{{ url_for('results_page') }}?job_id='+this.value"
+            style="width:auto;min-width:220px;">
+      {% for j in jobs %}
+        <option value="{{ j.id }}" {% if job and j.id == job.id %}selected{% endif %}>
+          {{ j.name }}
+        </option>
+      {% endfor %}
+    </select>
+    <a href="{{ url_for('report_page') }}" class="btn btn-secondary btn-sm">
+      <i class="ti ti-download"></i> Export
+    </a>
+  </div>
+</div>
+
+{# ── Summary Stats ───────────────────────────────────────────── #}
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="ti ti-files"></i></div>
+    <div>
+      <div class="stat-label">File Dianalisis</div>
+      <div class="stat-value">{{ total_files }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red"><i class="ti ti-alert-triangle"></i></div>
+    <div>
+      <div class="stat-label">Pasangan Bermasalah</div>
+      <div class="stat-value red">{{ high_count }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber"><i class="ti ti-percentage"></i></div>
+    <div>
+      <div class="stat-label">Kemiripan Maks.</div>
+      <div class="stat-value amber">{{ (max_sim * 100) | int }}%</div>
+    </div>
+  </div>
+</div>
+
+{# ── View Mode Tabs ───────────────────────────────────────────── #}
+<div class="tab-bar" style="margin-bottom:0;border-bottom:none;">
+  <button class="tab-item {% if view_mode == 'table' or not view_mode %}active{% endif %}"
+          onclick="switchView('table', this)">
+    <i class="ti ti-table" style="font-size:14px;vertical-align:-2px;margin-right:4px;"></i>
+    Tabel
+  </button>
+  <button class="tab-item {% if view_mode == 'heatmap' %}active{% endif %}"
+          onclick="switchView('heatmap', this)">
+    <i class="ti ti-grid-dots" style="font-size:14px;vertical-align:-2px;margin-right:4px;"></i>
+    Heatmap
+  </button>
+</div>
+
+{# ── VIEW: TABLE ─────────────────────────────────────────────── #}
+<div id="view-table" class="view-panel {% if view_mode == 'heatmap' %}hidden{% endif %}">
+
+  {# ── Filter Tabs ──────────────────────────────────────────────── #}
+  <div class="tab-bar">
+    {% set filters = [
+      ('all',  'Semua',         counts['all']),
+      ('low',  'Aman',          counts['low']),
+      ('med',  'Perlu Dicek',   counts['med']),
+      ('high', 'Sangat Tinggi', counts['high']),
+      ('plag', 'Terindikasi Plagiat', counts['plag']),
+    ] %}
+    {% for slug, label, count in filters %}
+      <a href="?{% if job %}job_id={{ job.id }}&{% endif %}filter={{ slug }}"
+        class="tab-item {% if active_filter == slug %}active{% endif %}">
+        {{ label }} ({{ count }})
+      </a>
+    {% endfor %}
+  </div>
+
+  {# ── Results Table ────────────────────────────────────────────── #}
+  <div class="card">
+    <div class="card-body" style="padding:0;">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>File A</th>
+            <th>File B</th>
+            <th>Kemiripan</th>
+            <th>Status</th>
+            <th>Indikasi Plagiat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pair in comparisons %}
+          <tr hx-get="{{ url_for('results_pair_detail', pair_id=pair.id).include_query_params(threshold=threshold) }}"
+              hx-target="body"
+              hx-swap="beforeend"
+              style="cursor:pointer;">
+
+            {% set score = (pair.final_score or 0) * 100 %}
+
+            {% set var_sim_label = score | sim_label(threshold) %}
+            {% set var_sim_class = score | sim_class(threshold) %}
+
+            <td style="color:var(--gray-400);font-family:var(--font-mono);font-size:12px;">
+              {{ loop.index | zeropad }}
+            </td>
+
+            <td>
+              <span class="file-chip" title="{{ pair.document_1.name }}">
+                {{ pair.document_1.name }}
+              </span>
+            </td>
+
+            <td>
+              <span class="file-chip" title="{{ pair.document_1.name }}">
+                {{ pair.document_2.name }}
+              </span>
+            </td>
+
+            <td>
+              <div class="sim-cell">
+                <span class="sim-pct {{ var_sim_class }}">
+                  {{ score | int }}%
+                </span>
+
+                <div class="sim-bar-wrap">
+                  <div class="sim-bar-fill {{ var_sim_class }}"
+                      style="width:{{ score }}%">
+                  </div>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <span class="badge badge-{{ var_sim_class }}">
+                {{ var_sim_label }}
+              </span>
+            </td>
+
+            <td>
+              {% if pair.is_plagiat %}
+                <span style="color:var(--red-fg);font-weight:600;font-size:12px;">
+                  ⚠ PLAGIAT
+                </span>
+              {% else %}
+                <span style="color:var(--green-dark);font-size:12px;">
+                  ✓ ORISINIL
+                </span>
+              {% endif %}
+            </td>
+
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" style="text-align:center;padding:2rem;color:var(--gray-400);">
+              Tidak ada data untuk filter ini.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>{# /view-table #}
+
+
+
+{# ── VIEW: HEATMAP ────────────────────────────────────────────── #}
+<div id="view-heatmap" class="view-panel {% if view_mode != 'heatmap' %}hidden{% endif %}">
+  <div class="card">
+
+    {# Toolbar #}
+    <div class="card-header">
+      <span class="card-title">
+        <i class="ti ti-grid-dots"></i>
+        Similarity Heatmap
+      </span>
+      <div class="flex gap-2 items-center">
+
+        {# Threshold slider #}
+        <div class="flex items-center gap-2" style="font-size:12.5px;color:var(--gray-500);">
+          <i class="ti ti-filter" style="font-size:14px;"></i>
+          <span>Filter Ambang Batas:</span>
+          <input type="range" id="hm-threshold" min="0" max="100" value="0"
+                 style="width:280px;accent-color:var(--green);"
+                 oninput="hmSetThreshold(this.value)" />
+          <span id="hm-threshold-val"
+                style="font-family:var(--font-mono);font-size:12.5px;min-width:30px;">0%</span>
+        </div>
+
+        {# Sort #}
+        <select class="form-select" id="hm-sort" onchange="hmSort(this.value)"
+                style="font-size:12.5px;padding:5px 10px;width:auto;">
+          <option value="name">Urutkan: Nama</option>
+          <option value="avg_desc">Urutkan: Rata-rata ↓</option>
+          <option value="max_desc">Urutkan: Maks ↓</option>
+        </select>
+
+        {# Color scale #}
+        <select class="form-select" id="hm-palette" onchange="hmPalette(this.value)"
+                style="font-size:12.5px;padding:5px 10px;width:auto;">
+          <option value="redgreen">Merah–Hijau</option>
+          <option value="heatmap">Heatmap</option>
+          <option value="blue">Biru</option>
+        </select>
+
+        {# Download PNG #}
+        <button class="btn btn-secondary btn-sm" onclick="hmDownload()">
+          <i class="ti ti-photo-down"></i> PNG
+        </button>
+      </div>
+    </div>
+
+    <div class="card-body">
+
+      {# Legend #}
+      <div class="hm-legend">
+        <span style="font-size:11.5px;color:var(--gray-500);">0%</span>
+        <div class="hm-legend-bar" id="hm-legend-bar"></div>
+        <span style="font-size:11.5px;color:var(--gray-500);">100%</span>
+        <div class="hm-legend-ticks">
+          <span>Aman</span>
+          <span>Perlu Dicek</span>
+          <span>Tinggi</span>
+        </div>
+      </div>
+
+      {# Heatmap canvas wrapper #}
+      <div class="hm-scroll-wrap">
+        <div id="hm-container" class="hm-container">
+          <canvas id="hm-canvas"></canvas>
+          {# Tooltip #}
+          <div id="hm-tooltip" class="hm-tooltip" style="display:none;"></div>
+        </div>
+      </div>
+
+      {# Summary below heatmap #}
+      <!-- <div class="hm-summary" id="hm-summary"></div> -->
+
+    </div>
+  </div>
+</div>{# /view-heatmap #}
+
+{% endblock %}{# /content #}
+
+
+{# ── Inject pair data as JSON for JS ─────────────────────────── #}
+{% block extra_scripts %}
+<script>
+  // 1. Amankan data dari Python ke memori global browser paling pertama
+  window.PAIRS_DATA = {{ pairs_json | safe if pairs_json else '[]' }};
+  window.FILES_DATA = {{ files_json | safe if files_json else '[]' }};
+
+  // 2. Membaca variabel mode tampilan yang dikirim FastAPI
+  const serverViewMode = "{{ view_mode }}"; 
+
+  // 3. Jalankan otomatis saat halaman selesai dimuat/di-refresh
+  document.addEventListener("DOMContentLoaded", function() {
+    if (serverViewMode === 'heatmap') {
+        // Cari tombol tab heatmap Anda sesuai ID di HTML asli Anda
+        const heatmapBtn = document.getElementById('btn-tab-heatmap') || document.querySelector('[onclick*="heatmap"]'); 
+        if (heatmapBtn) {
+            switchView('heatmap', heatmapBtn);
+        } else {
+            // Jika tombol tidak ketemu, minimal engine canvas-nya tetap kita nyalakan
+            hmInit(); 
+        }
+    }
+  });
+</script>
+
+<script src="{{ 'js/heatmap.js' | cache_bust }}"></script>
+
+<script>
+  // 5. Fungsi kendali perpindahan tab halaman
+  function switchView(mode, btn) {
+    // Atur status aktif pada tombol tab
+    document.querySelectorAll('.tab-item[onclick]').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    
+    // Sembunyikan/tampilkan panel yang sesuai
+    document.getElementById('view-table').classList.toggle('hidden', mode !== 'table');
+    document.getElementById('view-heatmap').classList.toggle('hidden', mode !== 'heatmap');
+    
+    // Jika pindah ke heatmap, gambar canvas-nya
+    if (mode === 'heatmap') hmInit();
+
+    // ── DI SINI TEMPATNYA ──────────────────────────────────────────
+    // Kode manipulasi URL harus berada di dalam fungsi switchView
+    // ───────────────────────────────────────────────────────────────
+    // A. Ambil parameter URL yang ada saat ini (seperti ?job_id=xxx)
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // B. Set atau perbarui parameter 'view' sesuai tab yang diklik
+    urlParams.set('view', mode);
+    
+    // C. Update URL di browser secara diam-diam tanpa reload halaman
+    const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+    window.history.replaceState({ path: newUrl }, '', newUrl);
+  }
+</script>
+
+
+<script>
+  function closePairDetailModalOnBackdrop(e) { 
+    if (e.target === e.currentTarget) {
+      const overlay = e.currentTarget;
+      
+      // 1. Hapus class open untuk memicu animasi closing CSS
+      overlay.classList.remove('open');
+      
+      // 2. Jika ini adalah modal dinamis dari HTMX (detail/edit), hapus total dari DOM setelah animasi selesai
+      // Cek apakah modal ini BUKAN modal new-job bawaan page
+      if (overlay.id !== 'new-job-modal') {
+        setTimeout(() => {
+          overlay.remove();
+          window.location.reload(); 
+        }, 200); // Sesuaikan 200ms dengan durasi transisi CSS kamu
+      }
+    }
+  }
+  // Taruh fungsi ini di sini (halaman utama) agar tetap hidup ketika modal dihapus
+  function closePairDetailModal(button) {
+    const overlay = button.closest('.modal-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('open'); // Mulai animasi fade out
+
+    // Tunggu sampai animasi selesai (200ms), hapus elemen, lalu refresh halaman utama
+    setTimeout(() => {
+      overlay.remove();
+      window.location.reload(); 
+    }, 200);
+  }
+</script>
+
+{% endblock %}
+
+

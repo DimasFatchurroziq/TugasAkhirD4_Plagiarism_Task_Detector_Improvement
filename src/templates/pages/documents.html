@@ -1,0 +1,336 @@
+{# templates/pages/results.html #}
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Daftar File</h1>
+    <p class="page-sub">{{ job.name if job else "Pilih job" }}</p>
+  </div>
+
+  <div class="flex items-center gap-2">
+  <label class="form-label" style="margin:0;white-space:nowrap;">Job aktif:</label>
+  <select class="form-select"
+          id="results-job-filter"
+          onchange="window.location='{{ url_for('documents_page') }}?job_id='+this.value"
+          style="width:auto;min-width:220px;">
+
+    {% for j in jobs %}
+      <option value="{{ j.id }}"
+        {% if job and j.id == job.id %}selected{% endif %}>
+        {{ j.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <button type="button"
+          class="btn btn-primary"
+          onclick="processDocuments()">
+    <i class="ti ti-git-compare"></i>Process Documents
+  </button>
+
+</div>
+</div>
+
+
+
+{# ── Summary Stats ───────────────────────────────────────────── #}
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="ti ti-files"></i></div>
+    <div>
+      <div class="stat-label">Proses</div>
+      <div class="stat-value">{{ counts["processing"] }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red"><i class="ti ti-alert-triangle"></i></div>
+    <div>
+      <div class="stat-label">Selesai</div>
+      <div class="stat-value red">{{ counts["done"] }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber"><i class="ti ti-percentage"></i></div>
+    <div>
+      <div class="stat-label">Error</div>
+      <div class="stat-value amber">{{ counts["error"] }}</div>
+    </div>
+  </div>
+</div>
+
+{% if job.scenario == "MULTIPLE" %}
+  {# ── Results Table ────────────────────────────────────────────── #}
+  <div class="card">
+    <div class="card-body" style="padding:0;">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>File</th>
+            <th>Dibuat</th>
+            <th>Status</th>
+            <th>Lihat</th>
+            <th>Hapus</th>
+          </tr>
+        </thead>
+        {% for pair in comparisons %}
+
+        <tr style="cursor:pointer;" id="doc-{{ pair.id }}">
+
+          <td style="color:var(--gray-400);font-family:var(--font-mono);font-size:12px;">
+            {{ loop.index | zeropad }}
+          </td>
+
+
+          <td>
+            <span class="file-chip">
+              {{ pair.name }}
+            </span>
+          </td>
+
+          <td>
+            <span>
+              {{ pair.created_at | time_ago }}
+            </span>
+          </td>
+
+          <td>
+            <span class="badge {{ pair.status | badge_class }}">
+              {{ pair.status }}
+            </span>
+          </td>
+
+          <td>
+            <a href="{{ url_for('view_full_document', document_id=pair.id) }}" 
+              target="_blank" 
+              class="badge {{ 'view' | badge_class }} btn btn-view"
+              style="text-decoration: none; display: inline-block;">
+              LIHAT
+            </a>
+          </td>
+
+          <td>
+            <span class="badge {{ "delete" | badge_class }} btn btn-delete"
+                  onclick="openDeleteModal('{{ pair.id }}')"
+                  style="cursor:pointer;">
+              HAPUS
+            </span>
+          </td>
+
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" style="text-align:center;padding:2rem;color:var(--gray-400);">
+            Tidak ada data untuk filter ini.
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+{% elif job.scenario == "SINGLE" %}
+  {# ── Results Table ────────────────────────────────────────────── #}
+  <div class="self-card-header">
+    <span class="card-title">
+      <i class="ti ti-clock"></i> Dokumen Utama
+    </span>
+  </div>
+  <div class="card">
+    <div class="card-body" style="padding:0;">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>File</th>
+            <th>Dibuat</th>
+            <th>Status</th>
+            <th>Lihat</th>
+            <th>Hapus</th>
+          </tr>
+        </thead>
+        {% for pair in comparisons %}
+
+          {% if pair.category == "ONE" %}
+
+            <tr style="cursor:pointer;" id="doc-{{ pair.id }}">
+
+              <td style="color:var(--gray-400);font-family:var(--font-mono);font-size:12px;">
+                {{ loop.index | zeropad }}
+              </td>
+
+
+              <td>
+                <span class="file-chip">
+                  {{ pair.name }}
+                </span>
+              </td>
+
+              <td>
+                <span>
+                  {{ pair.created_at | time_ago }}
+                </span>
+              </td>
+
+              <td>
+                <span class="badge {{ pair.status | badge_class }}">
+                  {{ pair.status }}
+                </span>
+              </td>
+
+              <td>
+                <a href="{{ url_for('view_full_document', document_id=pair.id) }}" 
+                  target="_blank" 
+                  class="badge {{ 'view' | badge_class }} btn btn-view"
+                  style="text-decoration: none; display: inline-block;">
+                  LIHAT
+                </a>
+              </td>
+
+              <td>
+                <span class="badge {{ "delete" | badge_class }} btn btn-delete"
+                      onclick="openDeleteModal('{{ pair.id }}')"
+                      style="cursor:pointer;">
+                  HAPUS
+                </span>
+              </td>
+
+            </tr>
+
+          {% endif %}
+
+        {% else %}
+        <tr>
+          <td colspan="6" style="text-align:center;padding:2rem;color:var(--gray-400);">
+            Tidak ada data untuk filter ini.
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+  <hr style="margin-top: 1rem;">
+  {# ── Results Table ────────────────────────────────────────────── #}
+  <div class="self-card-header">
+    <span class="card-title">
+      <i class="ti ti-clock"></i> Dokumen Pendukung
+    </span>
+  </div>
+  <div class="card">
+    <div class="card-body" style="padding:0;">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>File</th>
+            <th>Dibuat</th>
+            <th>Status</th>
+            <th>Lihat</th>
+            <th>Hapus</th>
+          </tr>
+        </thead>
+        {% for pair in comparisons %}
+
+          {% if pair.category == "MANY" %}
+
+            <tr style="cursor:pointer;" id="doc-{{ pair.id }}">
+
+              <td style="color:var(--gray-400);font-family:var(--font-mono);font-size:12px;">
+                {{ loop.index | zeropad }}
+              </td>
+
+
+              <td>
+                <span class="file-chip">
+                  {{ pair.name }}
+                </span>
+              </td>
+
+              <td>
+                <span>
+                  {{ pair.created_at | time_ago }}
+                </span>
+              </td>
+
+              <td>
+                <span class="badge {{ pair.status | badge_class }}">
+                  {{ pair.status }}
+                </span>
+              </td>
+
+              <td>
+                <a href="{{ url_for('view_full_document', document_id=pair.id) }}" 
+                  target="_blank" 
+                  class="badge {{ 'view' | badge_class }} btn btn-view"
+                  style="text-decoration: none; display: inline-block;">
+                  LIHAT
+                </a>
+              </td>
+
+              <td>
+                <span class="badge {{ "delete" | badge_class }} btn btn-delete"
+                      onclick="openDeleteModal('{{ pair.id }}')"
+                      style="cursor:pointer;">
+                  HAPUS
+                </span>
+              </td>
+
+            </tr>
+
+          {% endif %}
+
+        {% else %}
+        <tr>
+          <td colspan="6" style="text-align:center;padding:2rem;color:var(--gray-400);">
+            Tidak ada data untuk filter ini.
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+{% endif %}
+
+
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Konfirmasi Hapus</span>
+      <button class="icon-btn" onclick="closeDeleteModal(this)">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">
+            Yakin ingin menghapus dokumen ini? <span style="color:var(--red-fg)">*</span>
+          </label>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
+          Batal
+        </button>
+        <button id="confirmDeleteBtn" class="btn btn-delete">
+          <i class="ti ti-check"></i> Hapus
+        </button>
+      </div>
+
+    
+  </div>
+</div>
+
+
+<div id="loading-overlay" class="modal-overlay">
+  <div class="loader"></div>
+  <p class="loading-text">Sedang memproses dokumen, mohon tunggu...</p>
+</div>
+
+
+{% endblock %}

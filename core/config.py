@@ -5,6 +5,7 @@ from typing import Optional
 class Settings(BaseSettings):
     # Field tanpa nilai default wajib ada di .env (seperti DATABASE_URL)
     DATABASE_URL: str
+    DATABASE_URL_SYNC: str
     REDIS_URL: str
     CELERY_BROKER_URL: str
     CELERY_RESULT_BACKEND: str

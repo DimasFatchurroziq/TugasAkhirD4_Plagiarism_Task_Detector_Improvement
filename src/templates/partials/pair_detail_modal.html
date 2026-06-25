@@ -1,0 +1,126 @@
+{# templates/partials/pair_detail_modal.html #}
+
+{% set score = (pair.final_score or 0) * 100 %}
+{% set text_score = (pair.text_score or 0) * 100 %}
+{% set code_score = (pair.code_score or 0) * 100 %}
+{% set phrase_score = (pair.phrase_score or 0) * 100 %}
+
+
+{% set var_sim_label = score | sim_label(threshold) %}
+{% set var_sim_class = score | sim_class(threshold) %}
+
+<div class="modal-overlay open pair-modal-overlay" id="pair-modal" onclick="closePairDetailModalOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Detail Perbandingan</span>
+      <button class="icon-btn" onclick="closePairDetailModal(this)">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+
+      {# File pair header #}
+      <div style="display:flex;align-items:center;gap:10px;padding:14px;
+                  background:var(--gray-50);border-radius:var(--radius-md);
+                  border:1px solid var(--gray-200);">
+        <span class="file-chip">{{ pair.document_1.name }}</span>
+        <i class="ti ti-arrows-exchange" style="color:var(--gray-400);font-size:18px;"></i>
+        <span class="file-chip">{{ pair.document_2.name }}</span>
+      </div>
+
+      {# Stats #}
+      <div class="stats-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="stat-card self-pointer" style="padding:14px;">
+          <div class="stat-label">Tingkat Kemiripan</div>
+          <div class="stat-value {{ var_sim_class | sim_stat_class }}" style="display: inline-flex; align-items: center; gap: 8px; font-size:36px;">
+            {{ score | int }}%
+            <span class="badge badge-{{ var_sim_class }}" style="font-family: 'DM Sans', sans-serif; font-size:13px; letter-spacing: normal;">
+              {{ var_sim_label }}
+            </span>
+          </div>
+        </div>
+        <div class="stat-card" style="padding:14px;">
+          <div class="stat-label">Indikasi</div>
+          <div id="status-badge-container" style="font-size: 22px; font-weight:900; letter-spacing: 2px; display: inline-flex; align-items: center;">
+            {% if pair.is_plagiat %}
+                <span style="color:var(--red-fg); background: repeating-linear-gradient(45deg, var(--red-bg), var(--red-bg) 5px, transparent 5px, transparent 10px); border: 3px solid var(--red-bg); padding: 4px 8px; border-radius: 10px;">
+                  ⚠ PLAGIAT
+                </span>
+              {% else %}
+                <span style="color:var(--green-dark); background: repeating-linear-gradient(45deg, var(--green-light), var(--green-light) 5px, transparent 5px, transparent 10px); border: 3px solid var(--green-light); padding: 4px 8px; border-radius: 10px;">
+                  ✓ ORISINIL
+                </span>
+              {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Rincian #}
+      <div class="stats-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div style="margin-top:0.5rem;">
+          <div class="form-label" style="margin:0 0 6px 6px;">Teks Biasa</div>
+          <div style="padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);
+                      border:1px solid var(--gray-200);font-size:13px;color:var(--gray-700);"
+                      class="self-pointer self-translate">
+            {{ text_score | int }}%
+          </div>
+        </div>
+        <div style="margin-top:0.5rem;">
+          <div class="form-label" style="margin:0 0 6px 6px;">Kode Program</div>
+          <div style="padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);
+                      border:1px solid var(--gray-200);font-size:13px;color:var(--gray-700);"
+                      class="self-pointer self-translate">
+            {{ code_score | int }}%
+          </div>
+        </div>
+        <div style="margin-top:0.5rem;">
+          <div class="form-label" style="margin:0 0 6px 6px;">Parafrase</div>
+          <div style="padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-md);
+                      border:1px solid var(--gray-200);font-size:13px;color:var(--gray-700);"
+                      class="self-pointer self-translate">
+            {{ phrase_score | int }}%
+          </div>
+        </div>
+      </div>
+
+      {# Progress bar #}
+      <div style="margin-top:1rem;">
+        <div class="form-label" style="margin-bottom:6px;">Visualisasi Kemiripan</div>
+        <div class="progress-bar" style="height:10px;">
+          <div class="progress-fill {{ '' if var_sim_class == 'low' else var_sim_class }}"
+               style="width:{{ score }}%;height:100%;
+                      background:{% if var_sim_class == 'high' %}var(--red-mid)
+                                 {% elif var_sim_class == 'med' %}var(--amber-mid)
+                                 {% else %}var(--green){% endif %};
+                      border-radius:99px;">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <a href="{{ url_for('document_preview', comparison_id=pair.id) }}" 
+         target="_blank" 
+         class="btn btn-secondary"
+         onclick="document.getElementById('pair-modal').remove()">
+        Tutup & Preview
+      </a>
+      <!-- <button class="btn btn-danger btn-sm"
+              onclick="showToast('Dilaporkan sebagai plagiat','ti-flag')">
+        <i class="ti ti-flag"></i> Tandai Plagiat
+      </button> -->
+      <button id="btn-manual-plagiat"
+        class="btn {% if pair.is_plagiat %}self-btn-green{% else %}btn-danger{% endif %} btn-sm"
+        data-status="{% if pair.is_plagiat %}plagiat{% else %}orisinil{% endif %}"
+        onclick="togglePlagiatManual(this, '{{ pair.id }}')">
+  
+        {% if pair.is_plagiat %}
+          <i class="ti ti-alert-triangle"></i> Lepas Plagiat
+        {% else %}
+          <i class="ti ti-flag"></i> Tandai Plagiat
+        {% endif %}
+
+      </button>
+    </div>
+  </div>
+</div>

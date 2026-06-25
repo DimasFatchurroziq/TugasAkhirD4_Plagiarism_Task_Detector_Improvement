@@ -1,5 +1,7 @@
-def greedy_string_tiling(sort_matched_list, rollinghash_list_1, rollinghash_list_2, min_match_len):
-    tiles = []
+from src.utils.sorting import longest_sort
+
+def gst_right_left(sort_matched_list, rollinghash_list_1, rollinghash_list_2, min_match_len):
+    double_tiles = []
     index_tile = 0
     length_1 = len(rollinghash_list_1)
     length_2 = len(rollinghash_list_2)
@@ -10,7 +12,7 @@ def greedy_string_tiling(sort_matched_list, rollinghash_list_1, rollinghash_list
         a = sort_matched_list[i][0]
         b = sort_matched_list[i][1]
 
-        if tiles and tiles[index_tile-1][0] <= a and a <= tiles[index_tile-1][0] + tiles[index_tile-1][2]:
+        if double_tiles and double_tiles[index_tile-1][0] <= a and a <= double_tiles[index_tile-1][0] + double_tiles[index_tile-1][2]:
             # print("1")
             continue
 
@@ -35,25 +37,196 @@ def greedy_string_tiling(sort_matched_list, rollinghash_list_1, rollinghash_list
             if long_tile >= min_match_len:
                 limit_start_1 = a - l
                 limit_start_2 = b - l
-                tiles.append([limit_start_1, limit_start_2, long_tile])
+                double_tiles.append([limit_start_1, limit_start_2, long_tile])
                 index_tile += 1
                 # print("5")
 
-    return tiles, length_1, length_2
+    return double_tiles, length_1, length_2
 
-if __name__ == "__main__":
-    asu = [[0, 2097], [1, 2278], [2, 2049], [3, 2096], [4, 2209], [5, 2215], [6, 2045], [7, 2086], [8, 2105], [9, 2311], [10, 2045], [11, 2086], [12, 2105], [13, 2312], [14, 2057], [15, 2117], [16, 2184], [17, 2113], [18, 2359], [19, 2128], [20, 2409], [21, 2376], [22, 2177], [23, 2095], [24, 2078], [25, 2205], [26, 2086], [27, 2176], [28, 2337], [29, 2167], [30, 2117], [31, 2368]]
-    kontol = []
-    for item in asu:
-        kontol.append(item[1])
 
-    print(kontol)
+def gst_tile_to_hash_map(mapping_hash_list, tiles_list):
 
-    # matched_list = [[1, 3, 2096]]
-    # indexing_list_a = [2049, 2096, 2209, 2215]
-    # indexing_list_b = [45, 45, 45, 2096, 2209, 2215]
+    indexed_tiles = list(enumerate(tiles_list))
 
-    # tiles, length_1, length_2 = greedy_string_tiling(matched_list, indexing_list_a, indexing_list_b, min_match_len=3)
+    indexed_tiles = sorted(
+        indexed_tiles,
+        key=lambda x: x[1][1] - x[1][0],
+        reverse=True
+    )
 
-    # print(kontol)
+    list_match_hash_mapping = []
 
+    for mapping_idx, (m_start, m_end) in enumerate(mapping_hash_list):
+
+        segments = [[m_start, m_end, "FREE", None]]
+
+        for tile_id, (d_start, d_end) in indexed_tiles:
+
+            new_segments = []
+
+            for seg_start, seg_end, label, source in segments:
+
+                if seg_start > seg_end:
+                    continue
+
+                if label == "MATCHED":
+
+                    new_segments.append([
+                        seg_start,
+                        seg_end,
+                        label,
+                        source
+                    ])
+                    continue
+
+                if d_end < seg_start or d_start > seg_end:
+
+                    new_segments.append([
+                        seg_start,
+                        seg_end,
+                        label,
+                        source
+                    ])
+
+                else:
+
+                    # kiri
+                    if seg_start < d_start:
+
+                        left_start = seg_start
+                        left_end = d_start - 1
+
+                        if left_start <= left_end:
+                            new_segments.append([
+                                left_start,
+                                left_end,
+                                "FREE",
+                                None
+                            ])
+
+                    # overlap
+                    overlap_start = max(seg_start, d_start)
+                    overlap_end = min(seg_end, d_end)
+
+                    if overlap_start <= overlap_end:
+                        new_segments.append([
+                            overlap_start,
+                            overlap_end,
+                            "MATCHED",
+                            tile_id
+                        ])
+
+                    # kanan
+                    if seg_end > d_end:
+
+                        right_start = d_end + 1
+                        right_end = seg_end
+
+                        if right_start <= right_end:
+                            new_segments.append([
+                                right_start,
+                                right_end,
+                                "FREE",
+                                None
+                            ])
+
+            segments = new_segments
+
+        local = []
+
+        for s, e, label, source in segments:
+
+            if s <= e:
+                local.append({
+                    "label": label,
+                    "start": s - m_start,
+                    "end": e - m_start,
+                    "tile_source": source,
+                    "mapping_idx": mapping_idx
+                })
+
+        has_matched = any(item["label"] == "MATCHED" for item in local)
+      
+        is_detect_value = True if has_matched else False
+
+        list_match_hash_mapping.append({
+            "is_detect": is_detect_value,
+            "block": local
+        })
+
+    return list_match_hash_mapping
+
+
+def gst_hash_to_textcode_map(mapping_text_code_list, mapping_process_list, list_match_hash_mapping):
+    list_match_textcode_mapping = []
+
+    for m_idx, group in enumerate(list_match_hash_mapping):
+        mapped_group = []
+
+        for item in group["block"]:
+
+            # map_process_start = mapping_process_list[m_idx][item["start"]]
+            
+            map_process_start = mapping_process_list[m_idx][item["start"]]
+
+            map_process_end   = mapping_process_list[m_idx][item["end"]]
+
+            start_range = mapping_text_code_list[m_idx][0]
+            end_range   = mapping_text_code_list[m_idx][1]
+
+            map_text_code_start = find_in_range(start_range, end_range, map_process_start)
+            map_text_code_end = find_in_range(start_range, end_range, map_process_end)
+
+            mapped_group.append({
+                "label": item["label"],
+                "start": map_text_code_start,
+                "end": map_text_code_end,
+                "tile_source": item["tile_source"],
+                "mapping_idx": m_idx # Tetap kita masukkan m_idx hasil enumerate agar output konsisten
+            })
+
+        list_match_textcode_mapping.append({
+            "is_detect": group["is_detect"],
+            "block": mapped_group
+        })
+
+    return list_match_textcode_mapping
+
+
+
+def gst_textcode_to_doc_map(list_match_textcode_mapping, mapping_doc_list, tipe):
+    list_match_doc_mapping = []
+
+    for m_idx, group in enumerate(list_match_textcode_mapping):
+        converted_group = []
+
+        target_list = mapping_doc_list[m_idx]
+
+        for item in group["block"]:
+            rel_start = item["start"]
+            rel_end = item["end"]
+
+            actual_start = target_list[rel_start] if 0 <= rel_start < len(target_list) else -1
+            actual_end = target_list[rel_end] if 0 <= rel_end < len(target_list) else -1
+
+            converted_group.append({
+                "type": tipe,
+                "label": item["label"],
+                "start": actual_start,
+                "end": actual_end,
+                "tile_source": item["tile_source"],
+                "mapping_idx": m_idx
+            })
+
+        list_match_doc_mapping.append({
+            "is_detect": group["is_detect"],
+            "block": converted_group
+        })
+
+    return list_match_doc_mapping
+
+
+def find_in_range(start, end, target):
+    if start <= target <= end:
+        return target - start
+    return -1

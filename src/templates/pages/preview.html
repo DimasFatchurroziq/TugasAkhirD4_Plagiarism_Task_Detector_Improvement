@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Plagiarism Checker Preview</title>
+    <style>
+        body { 
+            background: #e0e0e0; 
+            font-family: sans-serif; 
+            margin: 0; 
+            padding: 0;
+            overflow: hidden; /* Mencegah seluruh halaman ikut ter-scroll */
+        }
+        
+        /* Header Toolbar atas */
+        .toolbar {
+            height: 50px;
+            background: #1D9E75;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Pembungkus Utama (Split Screen) */
+        .split-container {
+            display: flex;
+            height: calc(100vh - 50px); /* Memenuhi sisa tinggi layar */
+            width: 100vw;
+        }
+
+        /* Kolom Dokumen (Masing-masing 50% lebar) */
+        .document-pane {
+            flex: 1;
+            width: 50%;
+            
+            overflow-y: auto; /* INI KUNCINYA: Bisa di-scroll secara independen */
+            /* padding: 20px; */
+            box-sizing: border-box;
+            border-right: 2px solid #ccc;
+        }
+        .document-pane:last-child { border-right: none; }
+
+        /* .pane-title {
+            position: sticky;
+            text-align: center;
+            background: #fff;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        } */
+        .pane-title {
+            position: sticky;
+            top: 0;              /* Wajib: Menentukan posisi menempel di paling atas */
+            z-index: 10;         /* Wajib: Memastikan judul berada di atas elemen PDF saat di-scroll */
+            text-align: center;
+            background: #fff;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* --- PENANGANAN UKURAN (SCALING) --- */
+        /* Kita membuat wrapper khusus agar ukuran asli pt menyusut otomatis */
+        .pdf-scale-wrapper {
+            /* Nilai 0.7 berarti ukuran disusutkan ke 70% agar muat di layar */
+            /* Anda bisa mengubah angka ini sesuai kebutuhan (misal 0.6 atau 0.8) */
+            transform: scale(0.8); 
+            transform-origin: top center;
+            margin-bottom: -200px; /* Kompensasi ruang kosong akibat efek scale */
+        }
+
+        .page {
+            position: relative;
+            margin: 0 auto 40px auto;
+            background: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+
+        .pdf-char {
+            position: absolute;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="split-container">
+        
+        <div class="document-pane">
+            <div class="pane-title"><h3>{{ comparison.document_1.name }}</h3></div>
+            
+            {% for page in dokumen_asli %}
+            <div class="pdf-scale-wrapper">
+                <div class="page" id="page-asli-{{ page.index }}" style="width: {{ page.width }}pt; height: {{ page.height }}pt;">
+                    {% for char in page.characters %}
+                    <span class="pdf-char" style="left: {{ char.x0 }}pt; top: {{ char.y0 }}pt; font-size: {{ char.font_size }}pt; color: {{ char.color }}; {{ char.css_result }}; background-color: {{ char.bg_color }};">
+                        {{ char.text }}
+                    </span>
+                    {% endfor %}
+                    {% if page.images %}
+                        {% for image in page.images %}
+                            {% if page.index != 0 %} 
+                                <div class="scrollable-pdf-box" 
+                                    style="position: absolute; left: {{ image.x0 }}pt; top: {{ image.y0 }}pt;
+                                            width: {{ image.box_width }}pt; 
+                                            height: {{ image.box_height }}pt; 
+                                            overflow-y: auto; 
+                                            overflow-x: hidden; 
+                                            box-sizing: border-box; 
+                                            border: 1px solid #ccc; 
+                                            padding: 8px;">
+
+                                    <pre>{% for char in image.text_image %}<span style="font-size: {{ char.font_size }}pt; color: {{ char.color }}; font-family: {{ char.font_family }}; background-color: {{ char.bg_color }};">{{ char.text }}</span>{% endfor %}</pre>
+                                                                        
+                                </div>
+                            {% else %}
+                                <div class="pdf-box" 
+                                    style="position: absolute; left: {{ image.x0 }}pt; top: {{ image.y0 }}pt; width: {{ image.box_width }}pt; height: {{ image.box_height }}pt;">
+                                    
+                                    <img src="{{ image.base64_data }}" style="width: 100%; height: auto; display: block;" />                                    
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="document-pane">
+            <div class="pane-title"><h3>{{ comparison.document_2.name }}</h3></div>
+            
+            {% for page in dokumen_sumber %}
+            <div class="pdf-scale-wrapper">
+                <div class="page" id="page-sumber-{{ page.index }}" style="width: {{ page.width }}pt; height: {{ page.height }}pt;">
+                    {% for char in page.characters %}
+                    <span class="pdf-char" style="left: {{ char.x0 }}pt; top: {{ char.y0 }}pt; font-size: {{ char.font_size }}pt; color: {{ char.color }}; {{ char.css_result }}; background-color: {{ char.bg_color }};">
+                        {{ char.text }}
+                    </span>
+                    {% endfor %}
+                    {% if page.images %}
+                        {% for image in page.images %}
+                            {% if page.index != 0 %} 
+                                <div class="scrollable-pdf-box" 
+                                    style="position: absolute; left: {{ image.x0 }}pt; top: {{ image.y0 }}pt;
+                                            width: {{ image.box_width }}pt; 
+                                            height: {{ image.box_height }}pt; 
+                                            overflow-y: auto; 
+                                            overflow-x: hidden; 
+                                            box-sizing: border-box; 
+                                            border: 1px solid #ccc; 
+                                            padding: 8px;">
+
+                                                                     
+                                    <!-- <pre>
+                                        {% for char in image.text_image %} 
+                                            <span style="font-size: {{ char.font_size }}pt; color: {{ char.color }}; font-family: {{ char.font_family }}; background-color: {{ char.bg_color }};">
+                                                {{ char.text }}
+                                            </span>
+                                        {% endfor %}
+                                    </pre> -->
+                                    <pre>{% for char in image.text_image %}<span style="font-size: {{ char.font_size }}pt; color: {{ char.color }}; font-family: {{ char.font_family }}; background-color: {{ char.bg_color }};">{{ char.text }}</span>{% endfor %}</pre>
+                                    
+                                </div>
+                            {% else %}
+                                <div class="pdf-box" 
+                                    style="position: absolute; left: {{ image.x0 }}pt; top: {{ image.y0 }}pt; width: {{ image.box_width }}pt; height: {{ image.box_height }}pt;">
+                                    
+                                    <img src="{{ image.base64_data }}" style="width: 100%; height: auto; display: block;" />                                    
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</body>
+</html>

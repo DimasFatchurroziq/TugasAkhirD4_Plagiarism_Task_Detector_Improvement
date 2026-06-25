@@ -1,0 +1,65 @@
+{# templates/layouts/base.html #}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{{ page_title }} — PlagCheck{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Tabler Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+
+  <!-- Slider -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.js"></script>
+
+  <!-- HTMX (opsional, untuk partial page updates) -->
+  <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="{{ 'css/main.css' | cache_bust }}" />
+  <link rel="stylesheet" href="{{ 'css/components.css' | cache_bust }}" />
+  <link rel="stylesheet" href="{{ 'css/heatmap.css' | cache_bust }}" />
+
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<div class="layout">
+
+  {# ── Topbar ──────────────────────────────────────────────── #}
+  {% include "components/topbar.html" %}
+
+  {# ── Sidebar ─────────────────────────────────────────────── #}
+  {% include "components/sidebar.html" %}
+
+  {# ── Main ────────────────────────────────────────────────── #}
+  <main class="main" id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+</div>{# /layout #}
+
+{# ── Modal Container (diisi oleh halaman) ───────────────────── #}
+{% block modals %}{% endblock %}
+
+{# ── Toast Container ─────────────────────────────────────────── #}
+<div class="toast-wrap" id="toast-wrap"></div>
+
+{# ── App JS ───────────────────────────────────────────────────── #}
+<script src="{{ 'js/utils.js' | cache_bust }}"></script>
+<script src="{{ 'js/upload.js' | cache_bust }}"></script>
+<script src="{{ 'js/jobs.js' | cache_bust }}"></script>
+<script src="{{ 'js/pairs.js' | cache_bust }}"></script>
+<script src="{{ 'js/documents.js' | cache_bust }}"></script>
+
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+{# templates/pages/dashboard.html #}
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">Selamat datang kembali, Admin Dosen</p>
+  </div>
+  <button class="btn btn-primary" onclick="openNewJobModal()">
+    <i class="ti ti-plus"></i> Job Baru
+  </button>
+</div>
+
+{# ── Stats Grid ─────────────────────────────────────────────── #}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon green"><i class="ti ti-briefcase"></i></div>
+    <div>
+      <div class="stat-label">Total Job</div>
+      <div class="stat-value">{{ stats.total_jobs }}</div>
+    </div>
+    <div class="stat-trend"><i class="ti ti-trending-up"></i> Aktif bulan ini</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="ti ti-files"></i></div>
+    <div>
+      <div class="stat-label">File Dianalisis</div>
+      <div class="stat-value">{{ stats.total_files }}</div>
+    </div>
+    <div class="stat-trend"><i class="ti ti-trending-up"></i> Total semua job</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red"><i class="ti ti-alert-triangle"></i></div>
+    <div>
+      <div class="stat-label">Kemiripan Tinggi</div>
+      <div class="stat-value red">{{ stats.high_sim }}</div>
+    </div>
+    <div class="stat-trend"><i class="ti ti-arrow-right"></i> Perlu tindak lanjut</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber"><i class="ti ti-eye"></i></div>
+    <div>
+      <div class="stat-label">Perlu Dicek</div>
+      <div class="stat-value amber">{{ stats.med_sim }}</div>
+    </div>
+    <div class="stat-trend"><i class="ti ti-arrow-right"></i> Kemiripan 40–69%</div>
+  </div>
+</div>
+
+{# ── Recent Jobs ────────────────────────────────────────────── #}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">
+      <i class="ti ti-clock"></i> Job Terbaru
+    </span>
+    <a href="{{ url_for('jobs_list') }}" class="btn btn-secondary btn-sm">
+      Lihat semua <i class="ti ti-arrow-right"></i>
+    </a>
+  </div>
+  <div class="card-body">
+    <div class="job-list" id="recent-job-list">
+      {% for job in jobs %}
+        {% include "partials/job_card.html" %}
+      {% else %}
+        <div class="empty-state">
+          <i class="ti ti-briefcase"></i>
+          <p>Belum ada job. Buat job baru untuk memulai.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+  {% include "components/modal_new_job.html" %}
+{% endblock %}

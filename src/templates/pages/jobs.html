@@ -1,0 +1,124 @@
+{# templates/pages/jobs.html #}
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Daftar Job</h1>
+    <p class="page-sub">{{ jobs | length }} job aktif</p>
+  </div>
+  <div class="flex gap-2">
+    <button class="btn btn-secondary btn-sm">
+      <i class="ti ti-filter"></i> Filter
+    </button>
+    <button class="btn btn-primary" onclick="openNewJobModal()">
+      <i class="ti ti-plus"></i> Job Baru
+    </button>
+  </div>
+</div>
+
+{# ── Summary Stats ───────────────────────────────────────────── #}
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="ti ti-files"></i></div>
+    <div>
+      <div class="stat-label">Proses</div>
+      <div class="stat-value">0</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon red"><i class="ti ti-alert-triangle"></i></div>
+    <div>
+      <div class="stat-label">Selesai</div>
+      <div class="stat-value red">0</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber"><i class="ti ti-percentage"></i></div>
+    <div>
+      <div class="stat-label">Error</div>
+      <div class="stat-value amber">0</div>
+    </div>
+  </div>
+</div>
+
+{# ── Job List ────────────────────────────────────────────────── #}
+<div class="job-list" id="full-job-list">
+  {% for job in jobs %}
+    <div class="job-row {% if selected_job and selected_job.id == job.id %}active{% endif %}" 
+          id="job-card-{{ job.id }}"
+          hx-get="{{ url_for('jobs_detail', job_id=job.id) }}"
+          hx-target="body"
+          hx-swap="beforeend"
+          style="cursor:pointer;">
+
+      <div class="job-icon"><i class="ti ti-folder"></i></div>
+      <div class="job-info">
+        <div class="job-name">{{ job.name }}</div>
+        <div class="job-meta">
+          <span class="job-meta-item"><i class="ti ti-files"></i>{{ job.documents | length }} file</span>
+          <span class="job-meta-item"><i class="ti ti-cpu"></i>{{ job.scenario }}</span>
+          <span class="job-meta-item"><i class="ti ti-clock"></i>{{ job.created_at | time_ago }}</span>
+        </div>
+      </div>
+      {% if job.status not in ["PENDING", "MODIFIED"] %}
+        <div class="job-progress-wrap">
+          <div class="job-progress-label">
+            <span>{{ job.status | status_label }}</span>
+            <span>{{ job.progress }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill {{ job.status | progress_color }}"
+                style="width:{{ job.progress }}%"></div>
+          </div>
+        </div>
+      {% endif %}
+      <span class="badge {{ job.status | badge_class }}">
+        <i class="ti {{ job.status | status_icon }}"></i>
+        {{ job.status | status_label }}
+      </span>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="ti ti-briefcase"></i>
+      <p>Belum ada job. Buat job baru untuk memulai.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block modals %}
+  <div class="modal-overlay" id="deleteJobModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Konfirmasi Hapus</span>
+        <button class="icon-btn" onclick="closeDeleteJobModal(this)">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">
+              Yakin ingin menghapus Job ini? <span style="color:var(--red-fg)">*</span>
+            </label>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeDeleteJobModal()">
+            Batal
+          </button>
+          <button id="confirmDeleteJobBtn" class="btn btn-delete">
+            <i class="ti ti-check"></i> Hapus
+          </button>
+        </div>
+
+      
+    </div>
+  </div>
+
+  {% include "components/modal_new_job.html" %}
+{% endblock %}

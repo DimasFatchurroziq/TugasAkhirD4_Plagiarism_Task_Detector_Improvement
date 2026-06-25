@@ -1,0 +1,62 @@
+{# templates/components/sidebar.html #}
+<aside class="sidebar">
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Menu Utama</div>
+
+    <a href="{{ url_for('dashboard') }}"
+       class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+      <i class="ti ti-layout-dashboard"></i>
+      Dashboard
+    </a>
+
+    <a href="{{ url_for('jobs_list') }}"
+       class="nav-item {% if active_page == 'jobs' %}active{% endif %}">
+      <i class="ti ti-briefcase"></i>
+      Daftar Job
+      {% if stats is defined and stats.total_jobs %}
+        <span class="nav-badge green">{{ stats.total_jobs }}</span>
+      {% endif %}
+    </a>
+
+    <a href="{{ url_for('upload_page') }}"
+       class="nav-item {% if active_page == 'upload' %}active{% endif %}">
+      <i class="ti ti-cloud-upload"></i>
+      Upload File
+    </a>
+
+    <a href="{{ url_for('documents_page') }}"
+       class="nav-item {% if active_page == 'f' %}active{% endif %}">
+      <i class="ti ti-chart-bar"></i>
+      Daftar File
+      {% if stats is defined and stats.high_sim %}
+        <span class="nav-badge">{{ stats.total_documents }}</span>
+      {% endif %}
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Laporan</div>
+
+    <a href="{{ url_for('results_page') }}"
+       class="nav-item {% if active_page == 'results' %}active{% endif %}">
+      <i class="ti ti-chart-bar"></i>
+      Hasil Analisis
+      {% if stats is defined and stats.high_sim %}
+        <span class="nav-badge">{{ stats.high_sim }}</span>
+      {% endif %}
+    </a>
+  </div>
+
+
+  <!-- <div class="sidebar-section">
+    <div class="sidebar-section-label">Sistem</div>
+
+    <a href="{{ url_for('results_page') }}"
+       class="nav-item {% if active_page == 'results' %}active{% endif %}">
+      <i class="ti ti-file-text"></i>
+      Pengaturan
+    </a>
+  </div> -->
+
+</aside>

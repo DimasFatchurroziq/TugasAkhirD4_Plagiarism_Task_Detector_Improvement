@@ -1,0 +1,30 @@
+{# templates/partials/job_card.html — dirender ulang via HTMX #}
+<div class="job-row" id="job-{{ job.id }}">
+  <div class="job-icon">
+    <i class="ti ti-folder"></i>
+  </div>
+  <div class="job-info">
+    <div class="job-name">{{ job.name }}</div>
+    <div class="job-meta">
+      <span class="job-meta-item"><i class="ti ti-files"></i>{{ job.documents | length }} file</span>
+      <span class="job-meta-item"><i class="ti ti-cpu"></i>{{ job.scenario }}</span>
+      <span class="job-meta-item"><i class="ti ti-clock"></i>{{ job.created_at | time_ago }}</span>
+    </div>
+  </div>
+  {% if job.status not in ["PENDING", "MODIFIED"] %}
+    <div class="job-progress-wrap">
+      <div class="job-progress-label">
+        <span>{{ job.status | status_label }}</span>
+        <span>{{ job.progress }}%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill {{ job.status | progress_color }}"
+            style="width:{{ job.progress }}%"></div>
+      </div>
+    </div>
+  {% endif %}
+  <span class="badge {{ job.status | badge_class }}">
+    <i class="ti {{ job.status | status_icon }}"></i>
+    {{ job.status | status_label }}
+  </span>
+</div>

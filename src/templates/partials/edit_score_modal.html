@@ -1,0 +1,123 @@
+{# templates/components/edit_score_modal.html #}
+<div class="modal-overlay edit-job-modal-overlay" id="job-modal" onclick="closeModalOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Edit Job</span>
+      <button class="icon-btn" onclick="closeEditJobModal(this)">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+
+    <form id="edit-job-form"
+          hx-post="{{ url_for('jobs_update', job_id=job.id) }}"
+          hx-target="#job-card-{{ job.id }}"
+          hx-swap="outerHTML"
+          hx-headers='{"HX-Request": "true"}'>
+
+      <div class="modal-body">
+        <input type="hidden" name="job_id" value="{{ job.id }}">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Skenario Perbandingan</label>
+            <select class="form-select" name="scenario" id="edit-job-method">
+              <option value="MULTIPLE" {% if job.scenario == 'MULTIPLE' %}selected{% endif %}>MULTIPLE Detection</option>
+              <option value="SINGLE" {% if job.scenario == 'SINGLE' %}selected{% endif %}>SINGLE Detection</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ambang Batas (%)</label>
+            <input type="number" class="form-input" name="threshold"
+                   id="edit-job-threshold" value="{{ job.threshold }}" min="0" max="100" />
+            <span class="form-hint">Kemiripan ≥ nilai ini dianggap tinggi</span>
+          </div>
+        </div>
+
+              <div class="form-group">
+          <label class="form-label" style="margin-bottom: 10px;">Pengaturan Bobot Analisis Plagiarisme</label>
+          
+          <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem;">
+            <div style="color: var(--gray-700);">Teks Biasa: <span id="edit-txt-text">{{ ((job.weight_text or 0) * 100) | int }}</span>%</div>
+            <div style="color: var(--gray-700);">Kode Program: <span id="edit-txt-code">{{ ((job.weight_code or 0) * 100) | int }}</span>%</div>
+            <div style="color: var(--gray-700);">Parafrase: <span id="edit-txt-phrase">{{ ((job.weight_phrase or 0) * 100) | int }}</span>%</div>
+          </div>
+
+          <div id="edit-slider-bobot" style="height: 12px; margin: 0 5px;"></div>
+
+          <input type="hidden" name="weight_text" id="edit-input-text" value="{{ ((job.weight_text or 0) * 100) | int }}">
+          <input type="hidden" name="weight_code" id="edit-input-code" value="{{ ((job.weight_code or 0) * 100) | int }}">
+          <input type="hidden" name="weight_phrase" id="edit-input-phrase" value="{{ ((job.weight_phrase or 0) * 100) | int }}">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeEditJobModal(this)">
+          Batal
+        </button>
+        <button type="submit" class="btn btn-primary">
+          <i class="ti ti-check"></i> Simpan
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<style>
+    .noUi-connect:nth-child(1) { background: var(--gray-400) !important; } /* Merah */
+    .noUi-connect:nth-child(2) { background: var(--gray-400) !important; } /* Kuning */
+    .noUi-connect:nth-child(3) { background: var(--gray-400) !important; } /* Biru */
+    .noUi-target { background: #e9ecef; border: none; border-radius: 4px; box-shadow: none; }
+    .noUi-handle { width: 18px !important; height: 18px !important; right: -8px !important; top: -3px !important; border-radius: 20%; background: #fff; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+</style>
+
+<script>
+  (function() {
+    var slider = document.getElementById('edit-slider-bobot');
+
+    var currentText = parseInt("{{ ((job.weight_text or 0) * 100) | int }}") || 0;
+    var currentCode = parseInt("{{ ((job.weight_code or 0) * 100) | int }}") || 0;
+
+    var x = currentText;
+    var y = currentText + currentCode;
+
+    if (slider && !slider.noUiSlider) {
+      noUiSlider.create(slider, {
+        start: [x, y], // Titik potong (50% untuk text, 50+30=80% untuk code)
+        connect: [true, true, true], // 3 Area warna
+        range: {
+          'min': 0,
+          'max': 100
+        },
+        step: 1
+      });
+
+      var txtText = document.getElementById('edit-txt-text');
+      var txtCode = document.getElementById('edit-txt-code');
+      var txtPhrase = document.getElementById('edit-txt-phrase');
+
+      var inputText = document.getElementById('edit-input-text');
+      var inputCode = document.getElementById('edit-input-code');
+      var inputPhrase = document.getElementById('edit-input-phrase');
+
+      slider.noUiSlider.on('update', function (values, handle) {
+        var value0 = Math.round(parseFloat(values[0]));
+        var value1 = Math.round(parseFloat(values[1]));
+
+        var text = value0;
+        var code = value1 - value0;
+        var phrase = 100 - value1;
+
+        // Update Teks Tampilan
+        txtText.textContent = text;
+        txtCode.textContent = code;
+        txtPhrase.textContent = phrase;
+
+        // Update Value Input Hidden untuk dikirim lewat HTMX
+        inputText.value = text;
+        inputCode.value = code;
+        inputPhrase.value = phrase;
+      });
+    }
+  })();
+</script>

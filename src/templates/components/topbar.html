@@ -1,0 +1,26 @@
+{# templates/components/topbar.html #}
+<header class="topbar">
+  <div class="topbar-left">
+    <a class="logo" href="{{ url_for('dashboard') }}">
+      <div class="logo-mark">
+        <i class="ti ti-scan"></i>
+      </div>
+      PlagCheck
+    </a>
+  </div>
+
+  <form class="topbar-search" action="{{ url_for('jobs_list') }}" method="get">
+    <i class="ti ti-search"></i>
+    <input type="text" name="q" placeholder="Cari job, file..." autocomplete="off" />
+  </form>
+
+  <div class="topbar-right">
+    <button class="icon-btn" title="Notifikasi" onclick="showToast('Tidak ada notifikasi baru','ti-bell')">
+      <i class="ti ti-bell"></i>
+    </button>
+    <a href="{{ url_for('report_page') }}" class="icon-btn" title="Laporan">
+      <i class="ti ti-file-report"></i>
+    </a>
+    <div class="avatar" title="Admin Dosen">AD</div>
+  </div>
+</header>

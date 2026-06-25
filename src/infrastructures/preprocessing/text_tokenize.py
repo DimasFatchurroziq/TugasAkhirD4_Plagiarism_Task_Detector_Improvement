@@ -18,3 +18,9 @@ def tokenize_sentence(text):
     doc = nlp(text)
     sentence_tokens = [sent.text for sent in doc.sents]
     return sentence_tokens
+
+def count_word(text):
+    
+    words_only = text.split()
+    
+    return len(words_only)

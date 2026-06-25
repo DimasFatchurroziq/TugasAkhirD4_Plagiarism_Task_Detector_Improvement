@@ -1,0 +1,92 @@
+{# templates/pages/report.html #}
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Buat Laporan</h1>
+    <p class="page-sub">Konfigurasi dan export laporan plagiarisme</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">
+      <i class="ti ti-file-report"></i> Konfigurasi Laporan
+    </span>
+  </div>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('report_generate') }}" id="report-form">
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Pilih Job</label>
+            <select class="form-select" name="job_id" required>
+              {% for job in jobs %}
+                <option value="{{ job.id }}">{{ job.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Format Output</label>
+            <select class="form-select" name="format">
+              <option value="xlsx">Excel (.xlsx)</option>
+              <option value="pdf">PDF Report</option>
+              <option value="csv">CSV</option>
+              <option value="json">JSON</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Ambang Batas Tampilkan (%)</label>
+            <input type="number" class="form-input" name="threshold"
+                   value="40" min="0" max="100" />
+            <span class="form-hint">Hanya tampilkan pasangan dengan kemiripan ≥ nilai ini</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Urutkan berdasarkan</label>
+            <select class="form-select" name="order">
+              <option value="sim_desc">Kemiripan (Tertinggi dulu)</option>
+              <option value="sim_asc">Kemiripan (Terendah dulu)</option>
+              <option value="name_a">Nama file A (A–Z)</option>
+              <option value="name_b">Nama file B (A–Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Catatan laporan (opsional)</label>
+          <textarea class="form-textarea" name="notes"
+                    placeholder="Tambahkan catatan atau keterangan untuk laporan ini..."></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:.5rem;">
+          <button type="submit" class="btn btn-primary">
+            <i class="ti ti-file-export"></i> Generate &amp; Download
+          </button>
+          <button type="button" class="btn btn-secondary"
+                  onclick="showToast('Pratinjau laporan dibuka','ti-eye')">
+            <i class="ti ti-eye"></i> Pratinjau
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.getElementById('report-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fd   = new FormData(this);
+    const res  = await fetch(this.action, { method: 'POST', body: fd });
+    const data = await res.json();
+    showToast(data.message, 'ti-check');
+  });
+</script>
+{% endblock %}

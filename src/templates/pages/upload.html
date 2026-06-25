@@ -1,0 +1,212 @@
+{# templates/pages/upload.html #}
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<!-- <div class="page-header">
+  <div>
+    <h1 class="page-title">Upload File</h1>
+    <p class="page-sub">Tambahkan file ke job yang dipilih</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <label class="form-label" style="margin:0;white-space:nowrap;">Job aktif:</label>
+    <select class="form-select" id="active-job-select" style="width:auto;min-width:220px;">
+      {% for job in jobs %}
+        <option value="{{ job.id }}"
+          {% if selected_job_id and job.id == selected_job_id %}selected{% endif %}>
+          {{ job.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</div> -->
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Upload File</h1>
+    <p class="page-sub">Tambahkan file ke job yang dipilih</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <label class="form-label" style="margin:0;white-space:nowrap;">Job aktif:</label>
+    <select class="form-select" id="active-job-select" style="width:auto;min-width:220px;" onchange="location = '?job_id=' + this.value;">
+      {% for j in jobs %}
+        <option value="{{ j.id }}"
+          {% if selected_job_id and j.id == selected_job_id %}selected{% endif %}>
+          {{ j.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+<div class="mt-4">
+  {% if job %}
+    {% if job.scenario == "MULTIPLE" %}
+      
+      {# ── Drop Zone ──────────────────────────────────────────────── #}
+      <div class="upload-zone" id="drop-zone"
+          onclick="document.getElementById('file-input').click()"
+          ondragover="handleDragOverMultiple(event)"
+          ondragleave="handleDragLeaveMultiple(event)"
+          ondrop="handleDropMultiple(event)">
+
+        <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt"
+              onchange="handleFileInputMultiple(this.files)" style="display:none;" />
+
+        <div class="upload-icon-wrap">
+          <i class="ti ti-cloud-upload"></i>
+        </div>
+        <div class="upload-title">Tarik &amp; lepas file di sini</div>
+        <div class="upload-sub">
+          atau <strong>klik untuk memilih file</strong><br />
+          Mendukung PDF, DOCX, TXT &middot; Maks. 10 MB per file &middot; Maks. 50 file
+        </div>
+      </div>
+
+      {# ── Uploaded Files ─────────────────────────────────────────── #}
+      <div id="uploaded-section" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">
+              <i class="ti ti-files"></i>
+              File Terupload (<span id="upload-count">0</span>)
+            </span>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="clearAllFilesMultiple()">
+                <i class="ti ti-trash"></i> Hapus Semua
+              </button>
+              <div id="upload-section" class="mb-3">
+                <button type="button" class="btn btn-primary" onclick="startUploadsMultiple()">
+                  <i class="ti ti-upload"></i> Upload Files
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="file-grid" id="file-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Upload Progress ─────────────────────────────────────────── #}
+      <div id="upload-progress-section" style="display:none;">
+        <div class="card">
+          <div class="card-body">
+            <div class="flex items-center gap-3" style="margin-bottom:10px;">
+              <span class="form-label" style="margin:0;">Mengupload...</span>
+              <span id="upload-pct" class="font-mono" style="font-size:13px;">0%</span>
+            </div>
+            <div class="progress-bar" style="height:6px;">
+              <div class="progress-fill" id="upload-bar" style="width:0%;height:100%;background:var(--green);border-radius:99px;transition:width .3s;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    {% elif job.scenario == "SINGLE" %}
+      
+      <div class="upload-wrapper" style="display: flex; gap: 20px; width: 100%;">
+        <div class="upload-container" style="flex: 1; min-width: 0;">
+          <div class="upload-zone" onclick="document.getElementById('file-input-utama').click()"
+              ondragover="handleDragOverSingle(event)" ondragleave="handleDragLeaveSingle(event)" ondrop="handleDropSingle(event, 'utama')">
+            
+            <input type="file" id="file-input-utama" multiple accept=".pdf,.docx,.txt"
+                  onchange="handleFileInputSingle(this.files, 'utama')" style="display:none;" />
+
+            <div class="upload-icon-wrap"><i class="ti ti-cloud-upload"></i></div>
+            <div class="upload-title">Tarik &amp; lepas Dokumen Utama di sini</div>
+            <div class="upload-sub">atau <strong>klik untuk memilih file</strong></div>
+          </div>
+
+          <div id="uploaded-section-utama" style="display:none; margin-top: 15px;">
+            <div class="card">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="card-title">File (<span id="upload-count-utama">0</span>)</span>
+                <button class="btn btn-secondary btn-sm" onclick="clearAllFilesSingle('utama')"><i class="ti ti-trash"></i> Hapus</button>
+              </div>
+              <div class="card-body"><div id="file-grid-utama"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="upload-container" style="flex: 1; min-width: 0;">
+          <div class="upload-zone" onclick="document.getElementById('file-input-pendukung').click()"
+              ondragover="handleDragOverSingle(event)" ondragleave="handleDragLeaveSingle(event)" ondrop="handleDropSingle(event, 'pendukung')">
+            
+            <input type="file" id="file-input-pendukung" multiple accept=".pdf,.docx,.txt"
+                  onchange="handleFileInputSingle(this.files, 'pendukung')" style="display:none;" />
+
+            <div class="upload-icon-wrap"><i class="ti ti-cloud-upload"></i></div>
+            <div class="upload-title">Tarik &amp; lepas Dokumen Pendukung di sini</div>
+            <div class="upload-sub">atau <strong>klik untuk memilih file</strong></div>
+          </div>
+          <div id="uploaded-section-pendukung" style="display:none; margin-top: 15px;">
+            <div class="card">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="card-title">File (<span id="upload-count-pendukung">0</span>)</span>
+                <button class="btn btn-secondary btn-sm" onclick="clearAllFilesSingle('pendukung')"><i class="ti ti-trash"></i> Hapus</button>
+              </div>
+              <div class="card-body"><div id="file-grid-pendukung"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: right; margin-top: 20px;">
+        <button type="button" id="btn-submit-all" class="btn btn-primary" onclick="submitSemuaDokumenSingle()" style="padding: 10px 24px;">
+          <i class="ti ti-device-floppy"></i> Simpan &amp; Lanjutkan
+        </button>
+      </div>
+
+    {% endif %}
+  {% else %}
+    <div class="empty-state">
+      <i class="ti ti-briefcase"></i>
+      <p>Belum ada job. Buat job baru untuk memulai.</p>
+    </div>
+  {% endif %}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
