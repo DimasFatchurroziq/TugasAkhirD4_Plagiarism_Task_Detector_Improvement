@@ -1,17 +1,8 @@
-"""
-app/routers/dashboard.py
-"""
 from src.core.templates import templates
-
-
 from fastapi import APIRouter, Request, Depends
-# from fastapi.templating import Jinja2Templates
-from src.services import dashboard_service, job_service
 from src.api.v1.dependencies import get_job_service, get_compare_service
 
 router    = APIRouter()
-# templates = Jinja2Templates(directory="src/templates")
-
 
 @router.get("/", name="dashboard")
 async def dashboard(request: Request, compare_service = Depends(get_compare_service), service = Depends(get_job_service)):

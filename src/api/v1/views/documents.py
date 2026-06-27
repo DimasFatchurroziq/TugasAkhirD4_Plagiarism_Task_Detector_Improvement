@@ -1,10 +1,5 @@
-"""
-app/routers/results.py
-"""
 from src.core.templates import templates
-
 from uuid import UUID
-
 from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse, FileResponse
@@ -23,10 +18,9 @@ async def results_page(request: Request, job_id: UUID | None = None, filter: str
     if job_id:
         job = await job_service.get_job(job_id)
 
-    # 2. JIKA job_id KOSONG TAPI ADA DAFTAR JOBS, OTOMATIS AMBIL JOB PERTAMA
     if not job and jobs:
         job = jobs[-1]
-        job_id = job.id  # Update job_id agar query di bawahnya ikut menyesuaikan
+        job_id = job.id  
 
     documents = []
 
@@ -75,7 +69,6 @@ async def results_page(request: Request, job_id: UUID | None = None, filter: str
 
 @router.get("/{document_id}/view", name="view_full_document")
 async def view_full_document(document_id: UUID, doc_service = Depends(get_doc_service)):
-    # 1. Ambil data path file dari database berdasarkan document_id
     document = await doc_service.get_document(document_id)
     
     if not document or not document.path:

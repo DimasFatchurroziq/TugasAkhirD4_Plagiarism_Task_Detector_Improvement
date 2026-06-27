@@ -14,12 +14,13 @@ from itertools import combinations
 
 
 class ProcessService:
-    def __init__(self, compare_serv, 
+    def __init__(self, compare_serv, rkrgst_serv,
         sbert_model_instance,
         tahap1_serv, tahap2_serv, tahap3_serv, tahap4_serv, tahap5_serv, tahap6_serv, tahap7_serv,
         job_repo, doc_repo, block_repo, map_repo, hash_repo, compare_repo, rkrgst_repo, sbert_repo, block_embed_repo
     ):
         self.compare_serv = compare_serv
+        self.rkrgst_serv = rkrgst_serv
         self.sbert_model_instance = sbert_model_instance
         
         self.tahap1_serv = tahap1_serv
@@ -212,11 +213,8 @@ class ProcessService:
                 
             # print("10")
 
-            for item in double_tiles_text_list:
-                rkrgst = await self.rkrgst_repo.create_rkrgst(comparison.id, item, "TEXT")
-                
-            for item in double_tiles_code_list:
-                rkrgst = await self.rkrgst_repo.create_rkrgst(comparison.id, item, "CODE")
+            rkrgst_text = await self.rkrgst_serv.create_rkrgst_bulk(comparison.id, double_tiles_text_list, "TEXT")
+            rkrgst_code = await self.rkrgst_serv.create_rkrgst_bulk(comparison.id, double_tiles_code_list, "CODE")
 
 
             ############################################################################################################################################3
@@ -481,11 +479,8 @@ class ProcessService:
                     double_tiles_code_list, length_code_1, length_code_2 = [], 0, 0
                 # print("10")
 
-                for item in double_tiles_text_list:
-                    rkrgst = await self.rkrgst_repo.create_rkrgst(comparison.id, item, "TEXT")
-                    
-                for item in double_tiles_code_list:
-                    rkrgst = await self.rkrgst_repo.create_rkrgst(comparison.id, item, "CODE")
+                rkrgst_text = await self.rkrgst_serv.create_rkrgst_bulk(comparison.id, double_tiles_text_list, "TEXT")
+                rkrgst_code = await self.rkrgst_serv.create_rkrgst_bulk(comparison.id, double_tiles_code_list, "CODE")
 
 
                 ############################################################################################################################################3

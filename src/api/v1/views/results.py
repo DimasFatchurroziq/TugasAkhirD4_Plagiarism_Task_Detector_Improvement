@@ -1,17 +1,10 @@
-"""
-app/routers/results.py
-"""
 from src.core.templates import templates
-
 from uuid import UUID
-
 import json
-
 from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
 from src.services import job_service, dashboard_service
-
 from src.api.v1.dependencies import get_compare_service, get_job_service, get_doc_service, get_convert_service
 
 router    = APIRouter(prefix="/results")

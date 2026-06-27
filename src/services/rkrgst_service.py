@@ -1,4 +1,5 @@
 from src.repositories.rkrgst_repository import RkrgstRepository
+from src.models.model import Rkrgst
 
 class RkrgstService:
     def __init__(self, rkrgst_repo: RkrgstRepository):

@@ -10,13 +10,6 @@ comparison_router = APIRouter()
 
 UPLOAD_DIR = "uploads"
 
-# @comparison_router.post("/comparisons")
-# async def create_job_documents(
-#     job_id: UUID,
-#     files: list[UploadFile] = File(...),
-#     service = Depends(get_doc_service)
-#     ):
-#     return await service.create_job_documents(job_id, files, UPLOAD_DIR)
 
 @comparison_router.get("/jobs/{job_id}/comparisons")
 async def get_all_job_comparisons(
@@ -46,11 +39,3 @@ async def update_job_document(
     service = Depends(get_compare_service)
     ):
     return await service.update_comparison(comparison_id, payload)
-
-# @comparison_router.delete("/comparisons/{comparison_id}")
-# async def delete_job_document(
-#     job_id: UUID,
-#     comparison_id: UUID,
-#     service = Depends(get_doc_service)
-#     ):
-#     return await service.delete_job_document(job_id, comparison_id)

@@ -4,15 +4,15 @@
 {% block content %}
 <div class="page-header">
   <div>
-    <h1 class="page-title">Daftar Job</h1>
-    <p class="page-sub">{{ jobs | length }} job aktif</p>
+    <h1 class="page-title">Daftar Tugas</h1>
+    <p class="page-sub">{{ jobs | length }} tugas aktif</p>
   </div>
   <div class="flex gap-2">
     <button class="btn btn-secondary btn-sm">
       <i class="ti ti-filter"></i> Filter
     </button>
     <button class="btn btn-primary" onclick="openNewJobModal()">
-      <i class="ti ti-plus"></i> Job Baru
+      <i class="ti ti-plus"></i> Tugas Baru
     </button>
   </div>
 </div>
@@ -101,7 +101,7 @@
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label">
-              Yakin ingin menghapus Job ini? <span style="color:var(--red-fg)">*</span>
+              Yakin ingin menghapus Tugas ini? <span style="color:var(--red-fg)">*</span>
             </label>
           </div>
 

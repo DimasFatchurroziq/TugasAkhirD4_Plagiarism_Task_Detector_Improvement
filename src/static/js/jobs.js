@@ -29,7 +29,7 @@ function closeNewJobModal() {
     document.body.addEventListener('htmx:afterOnLoad', function(evt) {
       if (evt.detail.elt.id === 'new-job-form') {
         closeNewJobModal();
-        showToast('Job berhasil dibuat', 'ti-check');
+        showToast('Tugas berhasil dibuat', 'ti-check');
         setTimeout(() => {
           location.reload();
         }, 3000);
@@ -152,9 +152,9 @@ function closeDeleteJobModal() {
       // 3. Hapus baris tabel/card list jika ada
       if (row) {
         row.remove();
-        showToast("Berhasil menghapus job", "ti-check");
+        showToast("Berhasil menghapus tugas", "ti-check");
       } else {
-        showToast("Job berhasil dihapus", "ti-check");
+        showToast("Tugas berhasil dihapus", "ti-check");
       }
 
       // 4. Reload halaman setelah 3 detik

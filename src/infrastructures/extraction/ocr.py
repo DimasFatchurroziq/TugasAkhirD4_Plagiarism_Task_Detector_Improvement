@@ -2,40 +2,13 @@ import pytesseract
 import cv2
 import numpy as np
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+import os
+tesseract_path = os.getenv("TESSERACT_CMD")
+if tesseract_path:
+    import pytesseract
+    pytesseract.pytesseract.tesseract_cmd = tesseract_path
 
-# def ocr_code_image(image_bytes: bytes, lang: str = "eng", psm: int = 6) -> str:
-#     """
-#     OCR khusus gambar berisi kode program
-#     """
-
-#     # bytes → image
-#     np_arr = np.frombuffer(image_bytes, np.uint8)
-#     img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-
-#     if img is None:
-#         raise ValueError("Invalid image")
-
-#     # 1. grayscale (penting untuk code)
-#     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-#     # 2. upscale sedikit (kode sering kecil)
-#     gray = cv2.resize(gray, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
-
-#     # 3. threshold ringan (jangan terlalu agresif)
-#     thresh = cv2.adaptiveThreshold(
-#         gray, 255,
-#         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-#         cv2.THRESH_BINARY,
-#         31, 10
-#     )
-
-#     # 4. OCR config khusus code
-#     config = r"--psm 4 -c preserve_interword_spaces=1"
-
-#     text = pytesseract.image_to_string(thresh, lang=lang, config=config)
-
-#     return text
 
 def ocr_code_image(image_bytes: bytes, lang: str = "eng") -> str:
     """

@@ -19,6 +19,7 @@ from src.services.job_service import JobService
 from src.services.document_service import DocumentService
 from src.services.comparison_service import ComparisonService
 from src.services.sbert_service import SBertService
+from src.services.rkrgst_service import RkrgstService
 from src.services.process_service import ProcessService
 from src.services.convert_service import ConvertService
 
@@ -36,9 +37,13 @@ from src.services.convert.tahap_9 import Tahap_9
 from src.services.convert.tahap_10 import Tahap_10
 
 
+# from sentence_transformers import SentenceTransformer
+# MODEL_NAME = "firqaaa/indo-sentence-bert-base"
+# sbert_model_instance = SentenceTransformer(MODEL_NAME)
+import os
 from sentence_transformers import SentenceTransformer
-MODEL_NAME = "firqaaa/indo-sentence-bert-base"
-sbert_model_instance = SentenceTransformer(MODEL_NAME)
+MODEL = os.getenv("SBERT_MODEL_PATH", "firqaaa/indo-sentence-bert-base")
+sbert_model_instance = SentenceTransformer(MODEL)
 
 
 async def db_session(db: AsyncSession = Depends(get_db)):
@@ -150,6 +155,7 @@ def get_rkrgst_service(
 
 def get_process_service(
     compare_serv: ComparisonService = Depends(get_compare_service),
+    rkrgst_serv: RkrgstService = Depends(get_rkrgst_service),
 
     tahap1_serv: Tahap_1 = Depends(get_tahap1_service),
     tahap2_serv: Tahap_2 = Depends(get_tahap2_service),
@@ -170,7 +176,7 @@ def get_process_service(
     block_embed_repo: BlockEmbeddingRepository = Depends(get_block_embed_repo)
 ):
     return ProcessService(
-        compare_serv, 
+        compare_serv, rkrgst_serv,
         sbert_model_instance,
         tahap1_serv, tahap2_serv, tahap3_serv, tahap4_serv, tahap5_serv, tahap6_serv, tahap7_serv,
         job_repo, doc_repo, block_repo, map_repo, hash_repo, compare_repo, rkrgst_repo, sbert_repo, block_embed_repo

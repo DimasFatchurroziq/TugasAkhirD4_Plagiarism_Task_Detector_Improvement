@@ -25,26 +25,6 @@ def _ensure_upload_dir():
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
-# @router.get("/", name="upload_page")
-# async def upload_page(request: Request, job_id: UUID = None, compare_service = Depends(get_compare_service), service = Depends(get_job_service)):
-#     stats = await compare_service.get_stats()
-#     jobs = await service.get_all_jobs()
-
-#     if not job_id and jobs:
-#         job_id = jobs[-1].id
-
-#     return templates.TemplateResponse(
-#         "pages/upload.html",
-#         {
-#             "request":        request,
-#             "active_page":    "upload",
-#             "page_title":     "Upload File",
-#             "jobs":           jobs,
-#             "selected_job_id": job_id,
-#             "stats":          stats,
-#         },
-#     )
-
 @router.get("/", name="upload_page")
 async def upload_page(
     request: Request, 
@@ -56,11 +36,9 @@ async def upload_page(
     jobs = await service.get_all_jobs()
     job = None
     
-    # 1. JIKA job_id DIBERIKAN, AMBIL DATA JOB TERSEBUT
     if job_id:
         job = await service.get_job(job_id)
 
-    # 2. JIKA job TIDAK KETEMU / job_id KOSONG TAPI ADA DAFTAR JOBS, OTOMATIS AMBIL JOB TERAKHIR
     if not job and jobs:
         job = jobs[-1]
         job_id = job.id  # Update job_id agar variabel ID ikut menyesuaikan
@@ -116,16 +94,3 @@ async def upload_files(
         ],
         "errors": []
     })
-
-
-@router.post("/start", name="upload_start")
-async def upload_start(job_id: int = Form(...)):
-    """Memulai proses perbandingan untuk job tertentu."""
-    job = job_service.get_job(job_id)
-    if not job:
-        raise HTTPException(status_code=404, detail="Job tidak ditemukan")
-
-    # TODO: Jalankan task celery / background task di sini
-    # background_tasks.add_task(compare_files, job_id)
-
-    return RedirectResponse(url=f"/results/?job_id={job_id}", status_code=303)

@@ -385,7 +385,7 @@
 
 .self-translate:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 
-.self-file-chip {
+/* .self-file-chip {
   font-size: 11.5px;
   background: var(--gray-100);
   color: var(--gray-700);
@@ -396,7 +396,7 @@
   white-space: normal;
   overflow-wrap: break-word;
   word-break: break-word;
-}
+} */
 
 .self-btn-green {
   background: var(--green-light); color: var(--green-dark);
@@ -471,11 +471,30 @@
 }
   
 
-.file-chip-self {
+.self-file-chip {
   display: inline-block;
-  max-width: 150px;       /* Atur lebar maksimal sesuai kebutuhan Anda */
+  max-width: 250px;       /* Atur lebar maksimal sesuai kebutuhan Anda */
   white-space: nowrap;    /* Memaksa teks tetap dalam satu baris */
   overflow: hidden;       /* Menyembunyikan teks yang melewati batas */
   text-overflow: ellipsis;/* Mengubah teks yang terpotong menjadi ... */
   vertical-align: middle; /* Menjaga teks tetap sejajar secara vertikal */
+}
+
+.self-file-chip-doc {
+  display: inline-block;
+  max-width: 500px;       /* Atur lebar maksimal sesuai kebutuhan Anda */
+  white-space: nowrap;    /* Memaksa teks tetap dalam satu baris */
+  overflow: hidden;       /* Menyembunyikan teks yang melewati batas */
+  text-overflow: ellipsis;/* Mengubah teks yang terpotong menjadi ... */
+  vertical-align: middle; /* Menjaga teks tetap sejajar secara vertikal */
+}
+
+.self-file-chip-pair {
+  display: inline-block;
+  max-width: 200px;       /* Atur lebar maksimal sesuai kebutuhan Anda */
+  vertical-align: middle; /* Menjaga teks tetap sejajar secara vertikal */
+
+  white-space: normal;    /* Mengizinkan teks turun ke bawah jika penuh */
+  word-break: break-word; /* Memastikan kata yang terlalu panjang tetap dipotong ke bawah */
+  /* overflow dan text-overflow dihapus atau dinonaktifkan */
 }

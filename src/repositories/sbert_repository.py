@@ -21,3 +21,11 @@ class SBertRepository:
         self.db.add(sbert)
         await self.db.commit()
         return sbert
+
+    async def bulk_create(self, sbert_objects: list[SBert]):
+        
+        self.db.add_all(sbert_objects)
+        
+        await self.db.commit()
+        
+        return sbert_objects

@@ -4,18 +4,15 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # Field tanpa nilai default wajib ada di .env (seperti DATABASE_URL)
+    DB_USER: str = "plagiarism_user"
+    DB_PASSWORD: str = "plagiarism_pass"
+    DB_NAME: str = "plagiarism_db"
     DATABASE_URL: str
     DATABASE_URL_SYNC: str
-    REDIS_URL: str
-    CELERY_BROKER_URL: str
-    CELERY_RESULT_BACKEND: str
 
     # Field dengan nilai default akan dioverwrite jika ada di .env
     APP_NAME: str = "Similarity Detection System"
     DEBUG: bool = True
-    REDIS_HOST: str = "redis"
-    REDIS_PORT: int = 6379
-    REDIS_DB: int = 0
     
     UPLOAD_DIR: str = "/app/uploads"
     TEMP_DIR: str = "/app/temp"
@@ -25,7 +22,9 @@ class Settings(BaseSettings):
     K_GRAM: int = 3
     WINDOW_SIZE: int = 4
     
-    SBERT_MODEL: str = "paraphrase-multilingual-MiniLM-L12-v2"
+    SBERT_MODEL: str = "firqaaa/indo-sentence-bert-base"
+
+    SBERT_MODEL_PATH: str= "/model-cache/indo-sentence-bert-base"
 
     class Config:
         # Pydantic akan mencari file .env

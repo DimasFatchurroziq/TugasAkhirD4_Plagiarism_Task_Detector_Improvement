@@ -1,23 +1,12 @@
-"""
-app/routers/jobs.py
-"""
-# from src.api.v1.schemas.job_schema import JobCreate, JobUpdate
-
 from fastapi import APIRouter, Request, Form, HTTPException, Depends
-# from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, JSONResponse
-# from src.schemas.job import JobCreate
 from src.api.v1.schemas.job_schema import JobCreate, JobUpdate
 from src.api.v1.dependencies import get_job_service, get_compare_service
 from src.services import dashboard_service, job_service
-
 from src.core.templates import templates
-
 from uuid import UUID
 
-
 router    = APIRouter(prefix="/jobs")
-
 
 @router.get("/", name="jobs_list")
 async def jobs_list(request: Request, compare_service = Depends(get_compare_service), service = Depends(get_job_service)):
@@ -62,9 +51,7 @@ async def jobs_create(
 
     job    = await job_service.create_job(payload)
 
-    # Jika request HTMX (AJAX partial), kembalikan partial HTML
     if request.headers.get("HX-Request"):
-        # print(job)
         response = templates.TemplateResponse(
             "partials/job_card.html",
             {"request": request, "job": job},
@@ -72,11 +59,8 @@ async def jobs_create(
 
         target_url = f"{request.url_for('upload_page')}?job_id={job.id}"
     
-        # Kirim URL tersebut ke frontend melalui event kustom
         response.headers["HX-Trigger"] = f'{{"jobCreatedDelayed": "{target_url}"}}'
         return response
-
-    # print(2)
 
     return RedirectResponse(url="/jobs/", status_code=303)
 
@@ -92,7 +76,6 @@ async def jobs_update(
     weight_code: int = Form(default=85),
     weight_phrase: int = Form(default=5),
     job_service = Depends(get_job_service),
-    # payload: JobCreate
 ):
     job = await job_service.get_job(job_id)
     if not job:
@@ -109,7 +92,6 @@ async def jobs_update(
 
     job    = await job_service.update_job_with_status(job.id, payload)
 
-    # Jika request HTMX (AJAX partial), kembalikan partial HTML
     if request.headers.get("HX-Request"):
         print(job)
         return templates.TemplateResponse(
@@ -117,22 +99,12 @@ async def jobs_update(
             {"request": request, "job": job},
         )
 
-    # print(2)
 
     return RedirectResponse(url="/jobs/", status_code=303)
-
-
-# @router.delete("/{job_id}", name="jobs_delete")
-# async def jobs_delete(job_id: UUID):
-#     success = job_service.delete_job(job_id)
-#     if not success:
-#         raise HTTPException(status_code=404, detail="Job tidak ditemukan")
-#     return JSONResponse({"ok": True})
 
 @router.delete("/{job_id}", name="jobs_delete")
 async def jobs_delete(job_id: UUID, job_service = Depends(get_job_service)):
     try:
-        # Panggil service yang menggunakan instance class
         await job_service.delete_job(job_id)
         return JSONResponse(content={"ok": True}, status_code=200)
     except HTTPException as e:
@@ -156,12 +128,8 @@ async def jobs_detail(request: Request, job_id: UUID, compare_service = Depends(
         p.id or 0
         for p in all_pairs
     ]
-    
-    # print(len(total))
 
-    # Jika HTMX request, kembalikan modal partial
     if request.headers.get("HX-Request"):
-        # Pastikan relasi sudah di-fetch
         return templates.TemplateResponse(
             "partials/job_detail_modal.html",
             {"request": request, "job": job, "pairs": len(total)},
