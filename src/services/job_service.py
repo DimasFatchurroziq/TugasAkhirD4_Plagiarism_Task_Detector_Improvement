@@ -1,5 +1,8 @@
 # services/job_service.py
 from fastapi import HTTPException
+from pathlib import Path
+import shutil
+from fastapi import HTTPException
 
 import os
 from uuid import UUID
@@ -41,8 +44,28 @@ class JobService:
         updated_payload = payload.model_copy(update={"status": "MODIFIED"})
         return await self.job_repo.update(job, updated_payload)
 
-    async def delete_job(self, job_id: UUID):
+    async def delete_job(self, job_id: UUID, base_dir: str):
+        # 1. Pastikan Job-nya ada di DB
         job = await self.get_job(job_id)
+        if not job:
+            raise HTTPException(status_code=404, detail="Job tidak ditemukan")
+
+        # 2. Hapus folder lokal milik Job (entah kosong atau ada isinya)
+        # Folder didefinisikan berdasarkan base_dir / job_id seperti saat create
+        job_folder = Path(base_dir) / str(job_id)
+        
+        try:
+            if job_folder.exists() and job_folder.is_dir():
+                # shutil.rmtree akan menghapus folder beserta SELURUH file di dalamnya secara instan
+                shutil.rmtree(job_folder)
+                print(f"Folder job {job_id} berhasil dihapus dari lokal.")
+            else:
+                print(f"Peringatan: Folder lokal {job_folder} tidak ditemukan, lanjut hapus DB.")
+        except Exception as e:
+            # Kita log error-nya agar jika gagal karena permission issue, kita tahu.
+            print(f"Gagal menghapus folder lokal {job_folder}. Error: {e}")
+
+        # 3. Hapus data Job dari database via Repository
         return await self.job_repo.delete(job)
 
 
@@ -51,3 +74,5 @@ class JobService:
 
     async def get_total_jobs(self):
         return await self.job_repo.total_summary()
+
+    

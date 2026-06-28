@@ -5,7 +5,7 @@ from sqlalchemy.orm import joinedload
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.model import Block
+from src.models.model import Block, Mapping
 
 
 class BlockRepository:
@@ -61,3 +61,39 @@ class BlockRepository:
             .order_by(Block.sequence)
         )
         return result.scalars().unique().all()
+
+
+    async def create_blocks_with_mappings(self, document_id: str, final_data: list[dict]):
+        blocks_to_insert = []
+        
+        for item in final_data:
+            # 1. Inisialisasi data block
+            block_data = item["block"]
+            block = Block(
+                sequence=block_data["sequence"],
+                content=block_data["content"],
+                type=block_data["type"],
+                source=block_data["source"],
+                document_id=document_id
+            )
+            
+            # 2. Inisialisasi data mapping
+            map_data = item["mapping"]
+            mapping = Mapping(
+                mapping_doc=map_data["mapping_doc"],
+                mapping_text_code=map_data["mapping_text_code"],
+                mapping_preprocess=map_data["mapping_preprocess"],
+                mapping_hash=map_data["mapping_hash"]
+                # block_id TIDAK perlu diisi manual, karena diikat di bawah ini:
+            )
+            
+            # 3. Hubungkan secara ORM (uselist=False)
+            block.mapping = mapping
+            
+            blocks_to_insert.append(block)
+            
+        # 4. Kirim semuanya sekaligus ke database
+        self.db.add_all(blocks_to_insert)
+        await self.db.commit()  # Cukup sekali commit di akhir loop
+        
+        return blocks_to_insert

@@ -10,8 +10,8 @@ router    = APIRouter(prefix="/jobs")
 
 @router.get("/", name="jobs_list")
 async def jobs_list(request: Request, compare_service = Depends(get_compare_service), service = Depends(get_job_service)):
-    # jobs  = job_service.get_all_jobs()
-    # stats = job_service.get_stats()
+    count_jobs = await service.get_total_jobs()
+
     jobs  = await service.get_all_jobs_with_count()
     stats = await compare_service.get_stats()
     return templates.TemplateResponse(
@@ -21,6 +21,7 @@ async def jobs_list(request: Request, compare_service = Depends(get_compare_serv
             "active_page": "jobs",
             "page_title":  "Daftar Job",
             "jobs":        jobs,
+            "counts":      count_jobs,
             "stats":       stats,
         },
     )
@@ -105,8 +106,11 @@ async def jobs_update(
 @router.delete("/{job_id}", name="jobs_delete")
 async def jobs_delete(job_id: UUID, job_service = Depends(get_job_service)):
     try:
-        await job_service.delete_job(job_id)
-        return JSONResponse(content={"ok": True}, status_code=200)
+        # Sesuaikan dengan string path tempat kamu menyimpan upload file, misalnya "uploads" atau "storage"
+        base_dir = "uploads" 
+        
+        await job_service.delete_job(job_id, base_dir=base_dir)
+        return JSONResponse(content={"ok": True, "message": "Job and its folder deleted successfully"}, status_code=200)
     except HTTPException as e:
         raise e
     except Exception as e:

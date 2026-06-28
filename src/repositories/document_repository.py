@@ -54,9 +54,13 @@ class DocumentRepository:
         return doc
 
     async def delete(self, doc):
-        await self.db.delete(doc)
-        await self.db.commit()
-        return "doc"
+        try:
+            await self.db.delete(doc)
+            await self.db.commit()
+            return doc
+        except Exception as e:
+            await self.db.rollback()  # Selalu lakukan rollback jika commit gagal
+            raise e
 
 
 ########################################################################################333

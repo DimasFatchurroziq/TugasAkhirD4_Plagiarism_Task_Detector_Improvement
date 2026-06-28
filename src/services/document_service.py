@@ -1,6 +1,6 @@
 # services/job_service.py
 from fastapi import HTTPException
-
+from pathlib import Path
 import os
 from uuid import UUID, uuid4
 from pathlib import Path
@@ -93,10 +93,33 @@ class DocumentService:
 
         return await self.doc_repo.update(doc, payload)
 
-    async def delete_document(self, document_id: UUID):
-        doc = await self.get_document(document_id)
 
-        return await self.doc_repo.delete(doc)
+    async def delete_document(self, document_id: UUID):
+        # Ini akan otomatis raise HTTPException jika data tidak ada di DB
+        doc = await self.get_document(document_id) 
+        
+        if hasattr(doc, 'path') and doc.path:
+            file_path = Path(doc.path)
+            try:
+                # Menggunakan os.path.exists secara sinkronus atau pakai anyio
+                if file_path.exists() and file_path.is_file():
+                    # Pilihan 1: Menggunakan standard library (blocking sedikit tidak masalah untuk single file)
+                    file_path.unlink()
+                    
+                    # Pilihan 2: Jika ingin benar-benar non-blocking (async), gunakan anyio:
+                    # await anyio.to_thread.run_sync(file_path.unlink)
+                    
+                    print(f"Berhasil menghapus file fisik: {file_path}")
+                else:
+                    print(f"Peringatan: File fisik tidak ditemukan di {file_path}, lanjut hapus data DB.")
+            except Exception as e:
+                # Kita log error-nya, tapi proses di DB tetap lanjut agar tidak ada data 'sampah' di DB
+                print(f"Gagal menghapus file fisik di {doc.path}. Error: {e}")
+
+        # Hapus data di database
+        await self.doc_repo.delete(doc)
+        
+        return {"message": "Document and physical file deleted successfully", "id": document_id}
 
 
 ##############################################################################################3

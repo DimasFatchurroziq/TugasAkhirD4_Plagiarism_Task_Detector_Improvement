@@ -37,24 +37,24 @@
 {# ── Summary Stats ───────────────────────────────────────────── #}
 <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
   <div class="stat-card">
-    <div class="stat-icon blue"><i class="ti ti-files"></i></div>
+    <div class="stat-icon amber"><i class="ti ti-percentage"></i></div>
     <div>
       <div class="stat-label">Proses</div>
-      <div class="stat-value">{{ counts["processing"] }}</div>
+      <div class="stat-value amber">{{ counts["processing"] }}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="ti ti-files"></i></div>
+    <div>
+      <div class="stat-label">Selesai</div>
+      <div class="stat-value">{{ counts["done"] }}</div>
     </div>
   </div>
   <div class="stat-card">
     <div class="stat-icon red"><i class="ti ti-alert-triangle"></i></div>
     <div>
-      <div class="stat-label">Selesai</div>
-      <div class="stat-value red">{{ counts["done"] }}</div>
-    </div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-icon amber"><i class="ti ti-percentage"></i></div>
-    <div>
       <div class="stat-label">Error</div>
-      <div class="stat-value amber">{{ counts["error"] }}</div>
+      <div class="stat-value red">{{ counts["error"] }}</div>
     </div>
   </div>
 </div>

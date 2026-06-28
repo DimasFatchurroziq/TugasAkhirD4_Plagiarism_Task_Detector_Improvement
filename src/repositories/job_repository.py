@@ -92,12 +92,12 @@ class JobRepository:
             func.sum(
                 case(
                     (
-                        Job.status == "PENDING",
+                        Job.status == "ERROR",
                         1
                     ),
                     else_=0
                 )
-            ).label("pending"),
+            ).label("error"),
 
             func.sum(
                 case(
