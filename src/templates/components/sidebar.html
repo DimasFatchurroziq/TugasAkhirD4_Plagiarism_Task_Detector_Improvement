@@ -13,7 +13,7 @@
     <a href="{{ url_for('jobs_list') }}"
        class="nav-item {% if active_page == 'jobs' %}active{% endif %}">
       <i class="ti ti-briefcase"></i>
-      Daftar Job
+      Daftar Tugas
       {% if stats is defined and stats.total_jobs %}
         <span class="nav-badge green">{{ stats.total_jobs }}</span>
       {% endif %}
