@@ -15,6 +15,7 @@ async def results_page(request: Request, job_id: UUID | None = None, filter: str
     stats = await compare_service.get_stats()
     jobs  = await job_service.get_all_jobs()
     job = None
+    threshold = 70
     
     if job_id:
         job = await job_service.get_job(job_id)
@@ -25,23 +26,20 @@ async def results_page(request: Request, job_id: UUID | None = None, filter: str
         job_id = job.id  # Update job_id agar query di bawahnya ikut menyesuaikan
 
     comparisons = []
+    all_pairs = []
 
     if job:
+        threshold = job.threshold 
+
         comparisons = await compare_service.get_pairs(
             job_id=job_id,
             filter_level=filter
         )
 
-    all_pairs = []
-
-    if job:
         all_pairs = await compare_service.get_pairs(
             job_id=job_id,
             filter_level="all"
         )
-
-    if job:
-        threshold = job.threshold 
 
     scores = [
         p.final_score or 0
