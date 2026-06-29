@@ -1,0 +1,14 @@
+# Semua file teks: Git kelola line ending otomatis
+* text=auto
+
+# File shell: selalu LF (Linux)
+*.sh text eol=lf
+
+# File Python, config: selalu LF
+*.py text eol=lf
+*.env text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.ini text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
