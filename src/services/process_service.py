@@ -134,10 +134,6 @@ class ProcessService:
         hash_cache = {}
         blocks_cache = {}
 
-        for doc in docs:
-            hash_cache[doc.id] = await self.hash_repo.get_by_doc(doc.id)
-            blocks_cache[doc.id] = await self.block_repo.get_by_doc_with_map_embed(doc.id, "TEXT")
-
         result = []
         compare_docs = process_docs * (process_docs - 1) / 2
         compare = 0
@@ -179,8 +175,15 @@ class ProcessService:
                     
                 comparison = await self.compare_repo.create_compare(doc_1.id, doc_2.id)
 
-                hash_1 = hash_cache[doc_1.id]
-                hash_2 = hash_cache[doc_2.id]
+                hash_1 = hash_cache.get(doc_1.id)
+                if not hash_1:
+                    hash_1 = await self.hash_repo.get_by_doc(doc_1.id)
+                    hash_cache[doc_1.id] = hash_1
+
+                hash_2 = hash_cache.get(doc_2.id)
+                if not hash_2:
+                    hash_2 = await self.hash_repo.get_by_doc(doc_2.id)
+                    hash_cache[doc_2.id] = hash_2
 
                 hash_text_1, fingerprint_text_1 = self.get_hash_by_type(hash_1, "TEXT")
                 hash_code_1, fingerprint_code_1 = self.get_hash_by_type(hash_1, "CODE")
@@ -208,8 +211,15 @@ class ProcessService:
 
                 ############################################################################################################################################3
 
-                blocks_1 = blocks_cache[doc_1.id]
-                blocks_2 = blocks_cache[doc_2.id]
+                blocks_1 = blocks_cache.get(doc_1.id)
+                if not blocks_1:
+                    blocks_1 = await self.block_repo.get_by_doc_with_map_embed(doc_1.id, "TEXT")
+                    blocks_cache[doc_1.id] = blocks_1
+
+                blocks_2 = blocks_cache.get(doc_2.id)
+                if not blocks_2:
+                    blocks_2 = await self.block_repo.get_by_doc_with_map_embed(doc_2.id, "TEXT")
+                    blocks_cache[doc_2.id] = blocks_2
 
                 embedding_list_1 = self.tahap6_serv.embedding_sentence(blocks_1, double_tiles_text_list, 0, 4, self.sbert_model_instance)
                 embedding_list_2 = self.tahap6_serv.embedding_sentence(blocks_2, double_tiles_text_list, 1, 4, self.sbert_model_instance)
@@ -391,10 +401,6 @@ class ProcessService:
 
         hash_cache = {}
         blocks_cache = {}
-        
-        for doc in docs:
-            hash_cache[doc.id] = await self.hash_repo.get_by_doc(doc.id)
-            blocks_cache[doc.id] = await self.block_repo.get_by_doc_with_map_embed(doc.id, "TEXT")
 
         result = []
 
@@ -443,9 +449,16 @@ class ProcessService:
                         continue
                         
                     comparison = await self.compare_repo.create_compare(doc_1.id, doc_2.id)
-                    
-                    hash_1 = hash_cache[doc_1.id]
-                    hash_2 = hash_cache[doc_2.id]
+
+                    hash_1 = hash_cache.get(doc_1.id)
+                    if not hash_1:
+                        hash_1 = await self.hash_repo.get_by_doc(doc_1.id)
+                        hash_cache[doc_1.id] = hash_1
+
+                    hash_2 = hash_cache.get(doc_2.id)
+                    if not hash_2:
+                        hash_2 = await self.hash_repo.get_by_doc(doc_2.id)
+                        hash_cache[doc_2.id] = hash_2
 
                     hash_text_1, fingerprint_text_1 = self.get_hash_by_type(hash_1, "TEXT")
                     hash_code_1, fingerprint_code_1 = self.get_hash_by_type(hash_1, "CODE")
@@ -473,8 +486,15 @@ class ProcessService:
 
                     ############################################################################################################################################3
 
-                    blocks_1 = blocks_cache[doc_1.id]
-                    blocks_2 = blocks_cache[doc_2.id]
+                    blocks_1 = blocks_cache.get(doc_1.id)
+                    if not blocks_1:
+                        blocks_1 = await self.block_repo.get_by_doc_with_map_embed(doc_1.id, "TEXT")
+                        blocks_cache[doc_1.id] = blocks_1
+
+                    blocks_2 = blocks_cache.get(doc_2.id)
+                    if not blocks_2:
+                        blocks_2 = await self.block_repo.get_by_doc_with_map_embed(doc_2.id, "TEXT")
+                        blocks_cache[doc_2.id] = blocks_2
 
                     embedding_list_1 = self.tahap6_serv.embedding_sentence(blocks_1, double_tiles_text_list, 0, 4, self.sbert_model_instance)
                     embedding_list_2 = self.tahap6_serv.embedding_sentence(blocks_2, double_tiles_text_list, 1, 4, self.sbert_model_instance)
