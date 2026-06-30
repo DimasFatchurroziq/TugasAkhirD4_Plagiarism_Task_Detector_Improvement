@@ -8,7 +8,7 @@
     <p class="page-sub">{{ job.name if job else "Pilih job" }}</p>
   </div>
   <div class="flex items-center gap-2">
-    <label class="form-label" style="margin:0;white-space:nowrap;">Job aktif:</label>
+    <label class="form-label" style="margin:0;white-space:nowrap;">Tugas aktif:</label>
     <select class="form-select" id="results-job-filter"
             onchange="window.location='{{ url_for('results_page') }}?job_id='+this.value"
             style="width:auto;min-width:220px;">
