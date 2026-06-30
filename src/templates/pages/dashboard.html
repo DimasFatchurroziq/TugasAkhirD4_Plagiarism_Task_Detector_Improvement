@@ -8,7 +8,7 @@
     <p class="page-sub">Selamat datang kembali, Admin Dosen</p>
   </div>
   <button class="btn btn-primary" onclick="openNewJobModal()">
-    <i class="ti ti-plus"></i> Job Baru
+    <i class="ti ti-plus"></i> Tugas Baru
   </button>
 </div>
 
@@ -17,7 +17,7 @@
   <div class="stat-card">
     <div class="stat-icon green"><i class="ti ti-briefcase"></i></div>
     <div>
-      <div class="stat-label">Total Job</div>
+      <div class="stat-label">Total Tugas</div>
       <div class="stat-value">{{ stats.total_jobs }}</div>
     </div>
     <div class="stat-trend"><i class="ti ti-trending-up"></i> Aktif bulan ini</div>
@@ -52,7 +52,7 @@
 <div class="card">
   <div class="card-header">
     <span class="card-title">
-      <i class="ti ti-clock"></i> Job Terbaru
+      <i class="ti ti-clock"></i> Tugas Terbaru
     </span>
     <a href="{{ url_for('jobs_list') }}" class="btn btn-secondary btn-sm">
       Lihat semua <i class="ti ti-arrow-right"></i>
